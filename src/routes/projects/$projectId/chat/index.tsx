@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { ValidationPanel } from "@/components/ValidationPanel";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   CheckCircle2,
@@ -27,7 +28,7 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { notifyConversationsUpdated } from "@/services/history.service";
 
-export const Route = createFileRoute("/project/new/")({
+export const Route = createFileRoute("/projects/$projectId/chat/")({
   component: Chat,
 });
 
@@ -46,6 +47,7 @@ function getMessageId() {
 }
 
 function Chat() {
+  const { projectId } = Route.useParams();
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -71,7 +73,7 @@ function Chat() {
     setNotice(null);
 
     try {
-      const response = await ChatService.openChat();
+      const response = await ChatService.openChat(projectId);
       if (typeof response.id !== "string" || !response.id) {
         throw new Error("A API não retornou um ID de conversa válido.");
       }
@@ -93,7 +95,7 @@ function Chat() {
       openingRef.current = false;
       setIsOpening(false);
     }
-  }, []);
+  }, [projectId]);
 
   useEffect(() => {
     void openConversation();
@@ -153,7 +155,7 @@ function Chat() {
     setNotice(null);
 
     try {
-      const answer = await ChatService.sendMessage(conversationId, text);
+      const answer = await ChatService.sendMessage(projectId, conversationId, text);
       appendAnswer(answer);
       notifyConversationsUpdated();
     } catch (requestError) {
@@ -182,7 +184,7 @@ function Chat() {
     setNotice(null);
 
     try {
-      const answer = await ChatService.approve(conversationId);
+      const answer = await ChatService.approve(projectId, conversationId);
       appendAnswer(answer);
       if (answer.action !== "approved") {
         setNotice(
@@ -220,7 +222,7 @@ function Chat() {
     setNotice(null);
 
     try {
-      await ChatService.close(conversationId);
+      await ChatService.close(projectId, conversationId);
       setIsConversationActive(false);
       setHasPendingProposal(false);
       setNotice("Conversa encerrada. Nenhum requisito pendente foi aprovado.");
@@ -591,6 +593,8 @@ function RequirementProposal({
           ))}
         </div>
       )}
+
+      <ValidationPanel validation={requirement.validation} />
 
       {requirement.quality && (
         <details className="rounded-xl border px-3 py-2">

@@ -22,7 +22,7 @@ import type {
   ConversationMessage,
 } from "@/services/api.types";
 
-export const Route = createFileRoute("/project/$id/")({
+export const Route = createFileRoute("/projects/$projectId/conversations/$id/")({
   component: ConversationDetailsPage,
 });
 
@@ -42,7 +42,7 @@ function getAuthorLabel(message: ConversationMessage): string {
 }
 
 function ConversationDetailsPage() {
-  const { id } = Route.useParams();
+  const { projectId, id } = Route.useParams();
   const [conversation, setConversation] = useState<ConversationDetails | null>(
     null,
   );
@@ -53,7 +53,7 @@ function ConversationDetailsPage() {
     setIsLoading(true);
     setError(null);
     try {
-      setConversation(await HistoryService.getChatById(id));
+      setConversation(await HistoryService.getChatById(projectId, id));
     } catch (requestError) {
       setError(
         getApiErrorMessage(
@@ -64,7 +64,7 @@ function ConversationDetailsPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [id]);
+  }, [projectId, id]);
 
   useEffect(() => {
     void loadConversation();
@@ -137,7 +137,7 @@ function ConversationDetailsPage() {
                 <Button onClick={() => void loadConversation()}>
                   <RefreshCw /> Tentar novamente
                 </Button>
-                <Link to="/project/new">
+                <Link to="/projects/$projectId/chat" params={{ projectId }}>
                   <Button variant="outline">
                     <ArrowLeft /> Nova conversa
                   </Button>
@@ -159,7 +159,7 @@ function ConversationDetailsPage() {
                   Você pode iniciar uma nova conversa enquanto o histórico
                   permanece disponível.
                 </Typography>
-                <Link to="/project/new">
+                <Link to="/projects/$projectId/chat" params={{ projectId }}>
                   <Button>Nova conversa</Button>
                 </Link>
               </div>

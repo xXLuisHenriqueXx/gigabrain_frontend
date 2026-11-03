@@ -31,7 +31,7 @@ function Hero() {
       <div className="flex w-full max-w-2xl flex-row gap-2 px-4">
         <Button
           className="w-full flex-1"
-          onClick={() => router.navigate({ to: "/project/new" })}
+          onClick={() => router.navigate({ to: "/projects" })}
         >
           Get Started
         </Button>

@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, useParams, useRouterState } from "@tanstack/react-router";
 import {
   AlertCircle,
   BrainCircuit,
   FileText,
+  FolderKanban,
   LoaderCircle,
   MessageSquare,
   Plus,
@@ -31,9 +32,11 @@ import {
   CONVERSATIONS_UPDATED_EVENT,
   HistoryService,
 } from "@/services/history.service";
-import type { ConversationSummary } from "@/services/api.types";
+import { PROJECTS_UPDATED_EVENT, ProjectsService } from "@/services/projects.service";
+import type { ConversationSummary, Project } from "@/services/api.types";
 
 import { Logo } from "./Logo";
+import { LlmKeyForm } from "./LlmKeyForm";
 
 function getConversationLabel(conversation: ConversationSummary): string {
   if (conversation.title?.trim()) return conversation.title.trim();
@@ -56,12 +59,34 @@ export function AppSidebar() {
   const pathname = useRouterState({
     select: (state) => state.location.pathname,
   });
+  const { projectId } = useParams({ strict: false });
+  const [project, setProject] = useState<Project | null>(null);
+
+  useEffect(() => {
+    if (!projectId) return;
+    let cancelled = false;
+    const load = () =>
+      ProjectsService.get(projectId)
+        .then((result) => !cancelled && setProject(result))
+        .catch(() => !cancelled && setProject(null));
+    void load();
+    window.addEventListener(PROJECTS_UPDATED_EVENT, load);
+    return () => {
+      cancelled = true;
+      window.removeEventListener(PROJECTS_UPDATED_EVENT, load);
+    };
+  }, [projectId]);
 
   const loadConversations = useCallback(async () => {
+    if (!projectId) {
+      setConversations([]);
+      setIsLoading(false);
+      return;
+    }
     setIsLoading(true);
     setError(null);
     try {
-      const result = await HistoryService.getChats();
+      const result = await HistoryService.getChats(projectId);
       setConversations(result);
     } catch (requestError) {
       setError(
@@ -73,7 +98,7 @@ export function AppSidebar() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [projectId]);
 
   useEffect(() => {
     void loadConversations();
@@ -97,10 +122,30 @@ export function AppSidebar() {
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton
+                  render={<Link to="/projects" />}
+                  isActive={pathname === "/projects"}
+                  tooltip="Projetos"
+                >
+                  <FolderKanban />
+                  <span>Projetos</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              {projectId && (
+                <>
+              <SidebarMenuItem>
+                <p className="truncate px-2 pt-2 text-xs font-semibold text-muted-foreground">
+                  {project?.name ?? projectId}
+                </p>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
                   render={
-                    <Link to="/project/new" activeOptions={{ exact: true }} />
+                    <Link
+                      to="/projects/$projectId/chat"
+                      params={{ projectId }}
+                    />
                   }
-                  isActive={pathname === "/project/new"}
+                  isActive={pathname.endsWith("/chat")}
                   tooltip="Nova conversa"
                 >
                   <Plus />
@@ -109,11 +154,13 @@ export function AppSidebar() {
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton
-                  render={<Link to="/requirements" />}
-                  isActive={
-                    pathname === "/requirements" ||
-                    pathname.startsWith("/requirements/")
+                  render={
+                    <Link
+                      to="/projects/$projectId/requirements"
+                      params={{ projectId }}
+                    />
                   }
+                  isActive={pathname.includes("/requirements")}
                   tooltip="Requisitos"
                 >
                   <FileText />
@@ -122,20 +169,26 @@ export function AppSidebar() {
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton
-                  render={<Link to="/experts" />}
-                  isActive={
-                    pathname === "/experts" || pathname.startsWith("/experts/")
+                  render={
+                    <Link
+                      to="/projects/$projectId/experts"
+                      params={{ projectId }}
+                    />
                   }
+                  isActive={pathname.includes("/experts")}
                   tooltip="Especialistas"
                 >
                   <BrainCircuit />
                   <span>Especialistas</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
+                </>
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
 
+        {projectId && (
         <SidebarGroup>
           <div className="flex items-center justify-between gap-2 px-2">
             <SidebarGroupLabel className="px-0">
@@ -198,12 +251,12 @@ export function AppSidebar() {
               )}
 
               {conversations.map((conversation) => {
-                const to = "/project/$id" as const;
-                const active = pathname === `/project/${conversation.id}`;
+                const to = "/projects/$projectId/conversations/$id" as const;
+                const active = pathname.endsWith(`/conversations/${conversation.id}`);
                 return (
                   <SidebarMenuItem key={conversation.id}>
                     <SidebarMenuButton
-                      render={<Link to={to} params={{ id: conversation.id }} />}
+                      render={<Link to={to} params={{ projectId: projectId!, id: conversation.id }} />}
                       isActive={active}
                       tooltip={getConversationLabel(conversation)}
                     >
@@ -221,15 +274,21 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+        )}
       </SidebarContent>
 
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton tooltip="Configurações" disabled>
-              <Settings />
-              <span>Configurações</span>
-            </SidebarMenuButton>
+            <details className="group">
+              <summary className="list-none">
+                <SidebarMenuButton tooltip="Configurações" render={<div />}>
+                  <Settings />
+                  <span>Configurações</span>
+                </SidebarMenuButton>
+              </summary>
+              <LlmKeyForm />
+            </details>
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton tooltip="Perfil" disabled>

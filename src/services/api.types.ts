@@ -25,6 +25,33 @@ export interface RequirementQuality {
   vague_terms: string[];
 }
 
+export interface ValidationFinding {
+  severity: string;
+  message: string;
+  suggestion?: string | null;
+  [key: string]: unknown;
+}
+
+export interface ValidationDocumentScore {
+  assessed: boolean;
+  score: number;
+  passed: boolean;
+}
+
+/** The Critic's report: on a proposal (with action=propose) or on a saved requirement. */
+export interface ValidationReport {
+  verdict: string;
+  passed?: boolean;
+  score?: number;
+  scores?: Record<string, number>;
+  document?: Record<string, ValidationDocumentScore>;
+  failed_dimensions: string[];
+  findings?: ValidationFinding[];
+  rounds?: number;
+  saved_with?: { report_id: string; verdict?: string | null } | null;
+  [key: string]: unknown;
+}
+
 export interface ProposedRequirement {
   id?: string;
   title: string;
@@ -37,6 +64,7 @@ export interface ProposedRequirement {
   kind?: string;
   topics: string[];
   quality?: RequirementQuality;
+  validation?: ValidationReport | null;
   [key: string]: unknown;
 }
 
@@ -54,6 +82,7 @@ export interface TwinAnswer {
   action: ConversationAction;
   message: string;
   proposed_requirements: ProposedRequirement[];
+  validation?: ValidationReport | null;
   saved: string[];
   pending_proposal: boolean;
   conversation_active: boolean;
@@ -127,6 +156,7 @@ export interface RequirementDetails {
   current_version: number;
   content: ProposedRequirement;
   quality: RequirementQuality;
+  validation?: ValidationReport | null;
   versions: Array<Record<string, unknown>>;
   links: RequirementLink[];
   trace: Array<Record<string, unknown>>;
@@ -175,4 +205,11 @@ export interface RequirementFilters {
   status?: string;
   topic?: string;
   search?: string;
+}
+
+export interface Project {
+  id: string;
+  name: string;
+  description: string;
+  created_at: string;
 }

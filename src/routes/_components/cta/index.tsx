@@ -19,7 +19,7 @@ const CTA = () => {
           requirements.
         </Typography>
 
-        <Button onClick={() => router.navigate({ to: "/project/new" })}>
+        <Button onClick={() => router.navigate({ to: "/projects" })}>
           Get Started
         </Button>
       </div>

@@ -5,18 +5,26 @@ import type {
   TwinAnswer,
 } from "./api.types";
 
-const conversationPath = (id: string) =>
-  `/conversations/${encodeURIComponent(id)}`;
+const conversationsPath = (projectId: string) =>
+  `/projects/${encodeURIComponent(projectId)}/conversations`;
+const conversationPath = (projectId: string, id: string) =>
+  `${conversationsPath(projectId)}/${encodeURIComponent(id)}`;
 
 export const ChatService = {
-  async openChat(): Promise<OpenConversationResponse> {
-    const { data } = await API.post<OpenConversationResponse>("/conversations");
+  async openChat(projectId: string): Promise<OpenConversationResponse> {
+    const { data } = await API.post<OpenConversationResponse>(
+      conversationsPath(projectId),
+    );
     return data;
   },
 
-  async sendMessage(id: string, text: string): Promise<TwinAnswer> {
+  async sendMessage(
+    projectId: string,
+    id: string,
+    text: string,
+  ): Promise<TwinAnswer> {
     const { data } = await API.post<TwinAnswer>(
-      `${conversationPath(id)}/messages`,
+      `${conversationPath(projectId, id)}/messages`,
       {
         text,
       },
@@ -24,16 +32,16 @@ export const ChatService = {
     return data;
   },
 
-  async approve(id: string): Promise<TwinAnswer> {
+  async approve(projectId: string, id: string): Promise<TwinAnswer> {
     const { data } = await API.post<TwinAnswer>(
-      `${conversationPath(id)}/approve`,
+      `${conversationPath(projectId, id)}/approve`,
     );
     return data;
   },
 
-  async close(id: string): Promise<CloseConversationResponse> {
+  async close(projectId: string, id: string): Promise<CloseConversationResponse> {
     const { data } = await API.post<CloseConversationResponse>(
-      `${conversationPath(id)}/close`,
+      `${conversationPath(projectId, id)}/close`,
     );
     return data;
   },

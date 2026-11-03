@@ -19,7 +19,7 @@ import { getApiErrorMessage } from "@/services/api";
 import { HistoryService } from "@/services/history.service";
 import type { RequirementSummary } from "@/services/api.types";
 
-export const Route = createFileRoute("/requirements/")({
+export const Route = createFileRoute("/projects/$projectId/requirements/")({
   component: RequirementsPage,
 });
 
@@ -42,6 +42,7 @@ function statusLabel(status: string): string {
 }
 
 function RequirementsPage() {
+  const { projectId } = Route.useParams();
   const [requirements, setRequirements] = useState<RequirementSummary[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -53,7 +54,7 @@ function RequirementsPage() {
     setIsLoading(true);
     setError(null);
     try {
-      setRequirements(await HistoryService.getRequirements());
+      setRequirements(await HistoryService.getRequirements(projectId));
     } catch (requestError) {
       setError(
         getApiErrorMessage(
@@ -64,7 +65,7 @@ function RequirementsPage() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [projectId]);
 
   useEffect(() => {
     void loadRequirements();
@@ -295,8 +296,8 @@ function RequirementsPage() {
                       Atualizado em {formatDate(item.updated_at)}
                     </span>
                     <Link
-                      to="/requirements/$id"
-                      params={{ id: item.id }}
+                      to="/projects/$projectId/requirements/$id"
+                      params={{ projectId, id: item.id }}
                       className="inline-flex h-9 items-center justify-center gap-2 rounded-full border border-primary/50 px-3 text-sm transition-colors hover:bg-primary hover:text-foreground"
                     >
                       Detalhes <ArrowUpRight className="size-4" />

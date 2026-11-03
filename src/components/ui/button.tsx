@@ -21,6 +21,7 @@ const buttonVariants = cva(
         default:
           "h-12 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
         icon: "size-12",
+        "icon-sm": "size-8",
       },
     },
     defaultVariants: {

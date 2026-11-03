@@ -14,33 +14,36 @@ import type {
   RequirementSummary,
 } from "./api.types";
 
-const conversationPath = (id: string) =>
-  `/conversations/${encodeURIComponent(id)}`;
-const requirementPath = (id: string) =>
-  `/requirements/${encodeURIComponent(id)}`;
-const expertPath = (id: string) => `/experts/${encodeURIComponent(id)}`;
+const base = (projectId: string) => `/projects/${encodeURIComponent(projectId)}`;
+const conversationPath = (projectId: string, id: string) =>
+  `${base(projectId)}/conversations/${encodeURIComponent(id)}`;
+const requirementPath = (projectId: string, id: string) =>
+  `${base(projectId)}/requirements/${encodeURIComponent(id)}`;
+const expertPath = (projectId: string, id: string) =>
+  `${base(projectId)}/experts/${encodeURIComponent(id)}`;
 
 export const HistoryService = {
-  async getChats(): Promise<ConversationSummary[]> {
+  async getChats(projectId: string): Promise<ConversationSummary[]> {
     const { data } = await API.get<
       ConversationSummary[] | ConversationListResponse
-    >("/conversations");
+    >(`${base(projectId)}/conversations`);
     return Array.isArray(data) ? data : data.conversations;
   },
 
-  async getChatById(id: string): Promise<ConversationDetails> {
-    const { data } = await API.get<ConversationDetails>(conversationPath(id));
+  async getChatById(projectId: string, id: string): Promise<ConversationDetails> {
+    const { data } = await API.get<ConversationDetails>(conversationPath(projectId, id));
     return data;
   },
 
-  async getChatByIdEvents(id: string): Promise<BehindTheScenesEvent[]> {
+  async getChatByIdEvents(projectId: string, id: string): Promise<BehindTheScenesEvent[]> {
     const { data } = await API.get<BehindTheScenesEvent[]>(
-      `${conversationPath(id)}/events`,
+      `${conversationPath(projectId, id)}/events`,
     );
     return data;
   },
 
   async getRequirements(
+    projectId: string,
     filters: RequirementFilters = {},
   ): Promise<RequirementSummary[]> {
     const params = Object.fromEntries(
@@ -50,7 +53,7 @@ export const HistoryService = {
     );
     const { data } = await API.get<
       RequirementSummary[] | RequirementListResponse
-    >("/requirements", { params });
+    >(`${base(projectId)}/requirements`, { params });
     if (Array.isArray(data)) return data;
     if (Array.isArray(data.requirements)) return data.requirements;
     if (Array.isArray(data.items)) return data.items;
@@ -60,19 +63,19 @@ export const HistoryService = {
     );
   },
 
-  async getRequirementById(id: string): Promise<RequirementDetails> {
-    const { data } = await API.get<RequirementDetails>(requirementPath(id));
+  async getRequirementById(projectId: string, id: string): Promise<RequirementDetails> {
+    const { data } = await API.get<RequirementDetails>(requirementPath(projectId, id));
     return data;
   },
 
-  async getLinks(): Promise<RequirementLink[]> {
-    const { data } = await API.get<RequirementLink[]>("/links");
+  async getLinks(projectId: string): Promise<RequirementLink[]> {
+    const { data } = await API.get<RequirementLink[]>(`${base(projectId)}/links`);
     return data;
   },
 
-  async getExperts(): Promise<ExpertSummary[]> {
+  async getExperts(projectId: string): Promise<ExpertSummary[]> {
     const { data } = await API.get<ExpertSummary[] | ExpertListResponse>(
-      "/experts",
+      `${base(projectId)}/experts`,
     );
     if (Array.isArray(data)) return data;
     if (Array.isArray(data.experts)) return data.experts;
@@ -83,8 +86,8 @@ export const HistoryService = {
     );
   },
 
-  async getExpertById(id: string): Promise<ExpertDetails> {
-    const { data } = await API.get<ExpertDetails>(expertPath(id));
+  async getExpertById(projectId: string, id: string): Promise<ExpertDetails> {
+    const { data } = await API.get<ExpertDetails>(expertPath(projectId, id));
     return data;
   },
 };

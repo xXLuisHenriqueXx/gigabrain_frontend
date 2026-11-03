@@ -20,7 +20,7 @@ import { getApiErrorMessage } from "@/services/api";
 import { HistoryService } from "@/services/history.service";
 import type { ExpertSummary } from "@/services/api.types";
 
-export const Route = createFileRoute("/experts/")({ component: ExpertsPage });
+export const Route = createFileRoute("/projects/$projectId/experts/")({ component: ExpertsPage });
 
 function formatDate(value: string): string {
   const date = new Date(value);
@@ -29,6 +29,7 @@ function formatDate(value: string): string {
 }
 
 function ExpertsPage() {
+  const { projectId } = Route.useParams();
   const [experts, setExperts] = useState<ExpertSummary[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -38,7 +39,7 @@ function ExpertsPage() {
     setIsLoading(true);
     setError(null);
     try {
-      setExperts(await HistoryService.getExperts());
+      setExperts(await HistoryService.getExperts(projectId));
     } catch (requestError) {
       setError(
         getApiErrorMessage(
@@ -49,7 +50,7 @@ function ExpertsPage() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [projectId]);
 
   useEffect(() => {
     void loadExperts();
@@ -213,8 +214,8 @@ function ExpertsPage() {
                       Atualizado em {formatDate(expert.updated_at)}
                     </span>
                     <Link
-                      to="/experts/$id"
-                      params={{ id: expert.id }}
+                      to="/projects/$projectId/experts/$id"
+                      params={{ projectId, id: expert.id }}
                       className="inline-flex h-9 items-center justify-center gap-2 rounded-full border border-primary/50 px-3 text-sm transition-colors hover:bg-primary hover:text-foreground"
                     >
                       Detalhes <ArrowUpRight className="size-4" />

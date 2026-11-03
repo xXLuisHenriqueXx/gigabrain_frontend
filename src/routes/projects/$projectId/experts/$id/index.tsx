@@ -11,7 +11,7 @@ import { getApiErrorMessage } from "@/services/api";
 import { HistoryService } from "@/services/history.service";
 import type { ExpertDetails } from "@/services/api.types";
 
-export const Route = createFileRoute("/experts/$id/")({ component: ExpertDetailsPage });
+export const Route = createFileRoute("/projects/$projectId/experts/$id/")({ component: ExpertDetailsPage });
 
 function formatDate(value: unknown): string {
   if (typeof value !== "string" || !value) return "—";
@@ -26,7 +26,7 @@ function stringifyValue(value: unknown): string {
 }
 
 function ExpertDetailsPage() {
-  const { id } = Route.useParams();
+  const { projectId, id } = Route.useParams();
   const [expert, setExpert] = useState<ExpertDetails | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -35,13 +35,13 @@ function ExpertDetailsPage() {
     setIsLoading(true);
     setError(null);
     try {
-      setExpert(await HistoryService.getExpertById(id));
+      setExpert(await HistoryService.getExpertById(projectId, id));
     } catch (requestError) {
       setError(getApiErrorMessage(requestError, "Não foi possível carregar os detalhes do especialista."));
     } finally {
       setIsLoading(false);
     }
-  }, [id]);
+  }, [projectId, id]);
 
   useEffect(() => { void loadExpert(); }, [loadExpert]);
 
@@ -54,7 +54,7 @@ function ExpertDetailsPage() {
         <Button variant="outline" className="h-9 px-3" onClick={() => void loadExpert()} disabled={isLoading}><RefreshCw className={isLoading ? "animate-spin" : ""} /><span className="hidden sm:inline">Atualizar</span></Button>
       </header>
       <section className="min-h-0 flex-1 overflow-y-auto px-4 py-6 sm:px-8"><div className="mx-auto flex w-full max-w-5xl flex-col gap-5">
-        <Link to="/experts" className="inline-flex w-fit items-center gap-2 text-sm text-muted-foreground hover:text-foreground"><ArrowLeft className="size-4" /> Voltar para especialistas</Link>
+        <Link to="/projects/$projectId/experts" params={{ projectId }} className="inline-flex w-fit items-center gap-2 text-sm text-muted-foreground hover:text-foreground"><ArrowLeft className="size-4" /> Voltar para especialistas</Link>
         {isLoading && <div role="status" className="flex items-center gap-2 py-12 text-sm text-muted-foreground"><LoaderCircle className="size-4 animate-spin" /> Carregando especialista...</div>}
         {error && !isLoading && <Card role="alert" className="gap-3"><div className="flex items-start gap-2 text-destructive"><AlertCircle className="mt-0.5 size-4 shrink-0" /><p className="text-sm">{error}</p></div><Button variant="outline" onClick={() => void loadExpert()}><RefreshCw /> Tentar novamente</Button></Card>}
         {!isLoading && !error && expert && <>

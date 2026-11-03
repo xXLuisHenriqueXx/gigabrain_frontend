@@ -1,5 +1,7 @@
 import axios from "axios";
 
+import { getLlmKey } from "./llmKey";
+
 const configuredBaseURL = import.meta.env.VITE_API_BASE_URL;
 const baseURL = (configuredBaseURL || "http://127.0.0.1:8000/api/v1").replace(
   /\/+$/,
@@ -15,6 +17,12 @@ export const API = axios.create({
     "Content-Type": "application/json",
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
   },
+});
+
+API.interceptors.request.use((config) => {
+  const key = getLlmKey();
+  if (key) config.headers.set("X-LLM-Key", key);
+  return config;
 });
 
 export function getApiErrorMessage(error: unknown, fallback: string): string {

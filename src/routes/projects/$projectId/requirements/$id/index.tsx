@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { ValidationPanel } from "@/components/ValidationPanel";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AlertCircle, ArrowLeft, Clock3, FileText, GitBranch, LoaderCircle, RefreshCw } from "lucide-react";
 
@@ -11,7 +12,7 @@ import { getApiErrorMessage } from "@/services/api";
 import { HistoryService } from "@/services/history.service";
 import type { AcceptanceCriterion, RequirementDetails } from "@/services/api.types";
 
-export const Route = createFileRoute("/requirements/$id/")({ component: RequirementDetailsPage });
+export const Route = createFileRoute("/projects/$projectId/requirements/$id/")({ component: RequirementDetailsPage });
 
 function formatDate(value: unknown): string {
   if (typeof value !== "string") return "—";
@@ -30,7 +31,7 @@ function RecordDetails({ value }: { value: Record<string, unknown> }) {
 }
 
 function RequirementDetailsPage() {
-  const { id } = Route.useParams();
+  const { projectId, id } = Route.useParams();
   const [requirement, setRequirement] = useState<RequirementDetails | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -38,10 +39,10 @@ function RequirementDetailsPage() {
   const loadRequirement = useCallback(async () => {
     setIsLoading(true);
     setError(null);
-    try { setRequirement(await HistoryService.getRequirementById(id)); }
+    try { setRequirement(await HistoryService.getRequirementById(projectId, id)); }
     catch (requestError) { setError(getApiErrorMessage(requestError, "Não foi possível carregar os detalhes do requisito.")); }
     finally { setIsLoading(false); }
-  }, [id]);
+  }, [projectId, id]);
 
   useEffect(() => { void loadRequirement(); }, [loadRequirement]);
 
@@ -65,7 +66,7 @@ function RequirementDetailsPage() {
       <Button variant="outline" className="h-9 px-3" onClick={() => void loadRequirement()} disabled={isLoading}><RefreshCw className={isLoading ? "animate-spin" : ""} /><span className="hidden sm:inline">Atualizar</span></Button>
     </header>
     <section className="min-h-0 flex-1 overflow-y-auto px-4 py-6 sm:px-8"><div className="mx-auto flex w-full max-w-5xl flex-col gap-4">
-      <div><Link to="/requirements" className="inline-flex h-9 items-center justify-center gap-2 rounded-full px-3 text-sm transition-colors hover:bg-primary/10"><ArrowLeft className="size-4" /> Voltar aos requisitos</Link></div>
+      <div><Link to="/projects/$projectId/requirements" params={{ projectId }} className="inline-flex h-9 items-center justify-center gap-2 rounded-full px-3 text-sm transition-colors hover:bg-primary/10"><ArrowLeft className="size-4" /> Voltar aos requisitos</Link></div>
       {isLoading && <div role="status" className="flex items-center gap-2 py-12 text-sm text-muted-foreground"><LoaderCircle className="size-4 animate-spin" /> Carregando requisito...</div>}
       {error && !isLoading && <Card role="alert" className="gap-3"><div className="flex items-start gap-2 text-destructive"><AlertCircle className="mt-0.5 size-4 shrink-0" /><p className="text-sm">{error}</p></div><Button variant="outline" onClick={() => void loadRequirement()}><RefreshCw /> Tentar novamente</Button></Card>}
       {!isLoading && !error && requirement && <>
@@ -75,11 +76,11 @@ function RequirementDetailsPage() {
 
         <Card className="gap-3"><Typography as="h2" className="font-semibold">Critérios de aceitação</Typography>{criteria.length ? <ol className="flex flex-col gap-3">{criteria.map((criterion, index) => <li key={`${criterion.scenario}-${index}`} className="rounded-xl border p-3"><p className="font-medium text-sm">{criterion.scenario || `Critério ${index + 1}`}</p><dl className="mt-2 grid gap-2 text-sm sm:grid-cols-3">{([["Dado", criterion.given], ["Quando", criterion.when], ["Então", criterion.then]] as const).map(([label, value]) => <div key={label}><dt className="text-xs text-muted-foreground">{label}</dt><dd className="whitespace-pre-wrap">{value || "—"}</dd></div>)}</dl></li>)}</ol> : <p className="text-sm text-muted-foreground">A API não retornou critérios de aceitação estruturados para este requisito.</p>}</Card>
 
-        <Card className="gap-3"><Typography as="h2" className="font-semibold">Qualidade</Typography>{qualityItems.length ? <dl className="grid gap-3 sm:grid-cols-2">{qualityItems.map(([label, value]) => <div key={label} className="rounded-lg bg-muted/40 p-3"><dt className="text-xs text-muted-foreground">{label}</dt><dd className="mt-1 text-sm font-medium">{value}</dd></div>)}</dl> : <p className="text-sm text-muted-foreground">Não há resultados de qualidade disponíveis.</p>}{quality?.ears_pattern && <div><span className="text-xs text-muted-foreground">Padrão EARS</span><p className="mt-1 break-words text-sm">{quality.ears_pattern}</p></div>}</Card>
+        <ValidationPanel validation={requirement?.validation} /><Card className="gap-3"><Typography as="h2" className="font-semibold">Qualidade</Typography>{qualityItems.length ? <dl className="grid gap-3 sm:grid-cols-2">{qualityItems.map(([label, value]) => <div key={label} className="rounded-lg bg-muted/40 p-3"><dt className="text-xs text-muted-foreground">{label}</dt><dd className="mt-1 text-sm font-medium">{value}</dd></div>)}</dl> : <p className="text-sm text-muted-foreground">Não há resultados de qualidade disponíveis.</p>}{quality?.ears_pattern && <div><span className="text-xs text-muted-foreground">Padrão EARS</span><p className="mt-1 break-words text-sm">{quality.ears_pattern}</p></div>}</Card>
 
         <Card className="gap-3"><div className="flex items-center gap-2"><Clock3 className="size-4" /><Typography as="h2" className="font-semibold">Versões</Typography></div>{requirement.versions?.length ? <ol className="flex flex-col gap-2">{requirement.versions.map((version, index) => <li key={readString(version.id) ?? `${index}`} className="rounded-xl border p-3"><div className="mb-2 flex items-center justify-between gap-2"><span className="font-medium text-sm">Versão {readString(version.version) ?? readString(version.number) ?? String(index + 1)}</span><span className="text-xs text-muted-foreground">{formatDate(version.created_at ?? version.updated_at)}</span></div><RecordDetails value={version} /></li>)}</ol> : <p className="text-sm text-muted-foreground">O histórico de versões não foi retornado pela API.</p>}</Card>
 
-        <Card className="gap-3"><div className="flex items-center gap-2"><GitBranch className="size-4" /><Typography as="h2" className="font-semibold">Rastreabilidade e relacionamentos</Typography></div>{requirement.links?.length ? <ul className="flex flex-col gap-2">{requirement.links.map((link) => { const relatedId = link.source_id === requirement.id ? link.target_id : link.source_id; return <li key={link.id} className="rounded-xl border p-3"><div className="flex flex-wrap items-center justify-between gap-2"><span className="text-sm font-medium">{link.kind.replaceAll("_", " ")}</span><Link to="/requirements/$id" params={{ id: relatedId }} className="text-sm underline underline-offset-4">{relatedId}</Link></div>{link.reason && <p className="mt-1 text-sm text-muted-foreground">{link.reason}</p>}<p className="mt-1 text-xs text-muted-foreground">Criado em {formatDate(link.created_at)}</p></li>; })}</ul> : <p className="text-sm text-muted-foreground">Nenhum relacionamento foi retornado para este requisito.</p>}{requirement.trace?.length ? <div className="border-t pt-3"><Typography as="h3" className="mb-2 font-medium">Registros de rastreabilidade</Typography><ul className="flex flex-col gap-2">{requirement.trace.map((entry, index) => <li key={readString(entry.id) ?? String(index)} className="rounded-lg bg-muted/40 p-3"><RecordDetails value={entry} /></li>)}</ul></div> : null}</Card>
+        <Card className="gap-3"><div className="flex items-center gap-2"><GitBranch className="size-4" /><Typography as="h2" className="font-semibold">Rastreabilidade e relacionamentos</Typography></div>{requirement.links?.length ? <ul className="flex flex-col gap-2">{requirement.links.map((link) => { const relatedId = link.source_id === requirement.id ? link.target_id : link.source_id; return <li key={link.id} className="rounded-xl border p-3"><div className="flex flex-wrap items-center justify-between gap-2"><span className="text-sm font-medium">{link.kind.replaceAll("_", " ")}</span><Link to="/projects/$projectId/requirements/$id" params={{ projectId, id: relatedId }} className="text-sm underline underline-offset-4">{relatedId}</Link></div>{link.reason && <p className="mt-1 text-sm text-muted-foreground">{link.reason}</p>}<p className="mt-1 text-xs text-muted-foreground">Criado em {formatDate(link.created_at)}</p></li>; })}</ul> : <p className="text-sm text-muted-foreground">Nenhum relacionamento foi retornado para este requisito.</p>}{requirement.trace?.length ? <div className="border-t pt-3"><Typography as="h3" className="mb-2 font-medium">Registros de rastreabilidade</Typography><ul className="flex flex-col gap-2">{requirement.trace.map((entry, index) => <li key={readString(entry.id) ?? String(index)} className="rounded-lg bg-muted/40 p-3"><RecordDetails value={entry} /></li>)}</ul></div> : null}</Card>
       </>}
     </div></section>
   </main>;
