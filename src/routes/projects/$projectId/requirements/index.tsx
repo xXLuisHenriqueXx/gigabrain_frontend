@@ -26,17 +26,17 @@ export const Route = createFileRoute("/projects/$projectId/requirements/")({
 function formatDate(value: string): string {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "—";
-  return new Intl.DateTimeFormat("pt-BR", { dateStyle: "medium" }).format(date);
+  return new Intl.DateTimeFormat("en-US", { dateStyle: "medium" }).format(date);
 }
 
 function statusLabel(status: string): string {
   const labels: Record<string, string> = {
-    approved: "Aprovado",
-    active: "Ativo",
-    draft: "Rascunho",
-    proposed: "Proposto",
-    deprecated: "Substituído",
-    rejected: "Rejeitado",
+    approved: "Approved",
+    active: "Active",
+    draft: "Draft",
+    proposed: "Proposed",
+    deprecated: "Superseded",
+    rejected: "Rejected",
   };
   return labels[status.toLowerCase()] ?? status;
 }
@@ -59,7 +59,7 @@ function RequirementsPage() {
       setError(
         getApiErrorMessage(
           requestError,
-          "Não foi possível carregar os requisitos.",
+          "Could not load the requirements.",
         ),
       );
     } finally {
@@ -88,7 +88,7 @@ function RequirementsPage() {
     [requirements],
   );
   const filteredRequirements = useMemo(() => {
-    const query = search.trim().toLocaleLowerCase("pt-BR");
+    const query = search.trim().toLocaleLowerCase("en-US");
     return requirements.filter((item) => {
       const matchesQuery =
         !query ||
@@ -101,7 +101,7 @@ function RequirementsPage() {
           ...(item.topics ?? []),
         ].some((value) =>
           String(value ?? "")
-            .toLocaleLowerCase("pt-BR")
+            .toLocaleLowerCase("en-US")
             .includes(query),
         );
       const matchesStatus = status === "all" || item.status === status;
@@ -118,10 +118,10 @@ function RequirementsPage() {
         <SidebarTrigger className="mt-1 shrink-0" />
         <div className="min-w-0 flex-1">
           <Typography as="h1" className="text-xl font-semibold">
-            Requisitos
+            Requirements
           </Typography>
           <Typography as="p" className="mt-1">
-            Consulte requisitos persistidos, suas classificações e versões.
+            Browse saved requirements, their classifications and versions.
           </Typography>
         </div>
         <Button
@@ -131,7 +131,7 @@ function RequirementsPage() {
           disabled={isLoading}
         >
           <RefreshCw className={isLoading ? "animate-spin" : ""} />
-          <span className="hidden sm:inline">Atualizar</span>
+          <span className="hidden sm:inline">Refresh</span>
         </Button>
       </header>
 
@@ -139,13 +139,13 @@ function RequirementsPage() {
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-5">
           <div className="grid gap-3 sm:grid-cols-3">
             <Card className="gap-1">
-              <Typography as="p">Total de requisitos</Typography>
+              <Typography as="p">Total requirements</Typography>
               <Typography as="h2" className="text-2xl font-semibold">
                 {isLoading ? "—" : requirements.length}
               </Typography>
             </Card>
             <Card className="gap-1">
-              <Typography as="p">Funcionais</Typography>
+              <Typography as="p">Functional</Typography>
               <Typography as="h2" className="text-2xl font-semibold">
                 {isLoading
                   ? "—"
@@ -153,7 +153,7 @@ function RequirementsPage() {
               </Typography>
             </Card>
             <Card className="gap-1">
-              <Typography as="p">Não funcionais</Typography>
+              <Typography as="p">Non-functional</Typography>
               <Typography as="h2" className="text-2xl font-semibold">
                 {isLoading
                   ? "—"
@@ -166,20 +166,20 @@ function RequirementsPage() {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
               <Input
-                aria-label="Pesquisar requisitos"
+                aria-label="Search requirements"
                 className="h-11 pl-9"
-                placeholder="Pesquisar por título, descrição ou tópico..."
+                placeholder="Search by title, description or topic..."
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
               />
             </div>
             <select
-              aria-label="Filtrar por status"
+              aria-label="Filter by status"
               className="h-11 rounded-2xl border border-input bg-background px-3 text-sm"
               value={status}
               onChange={(event) => setStatus(event.target.value)}
             >
-              <option value="all">Todos os status</option>
+              <option value="all">All statuses</option>
               {statuses.map((value) => (
                 <option key={value} value={value}>
                   {statusLabel(value)}
@@ -187,12 +187,12 @@ function RequirementsPage() {
               ))}
             </select>
             <select
-              aria-label="Filtrar por tópico"
+              aria-label="Filter by topic"
               className="h-11 rounded-2xl border border-input bg-background px-3 text-sm"
               value={topic}
               onChange={(event) => setTopic(event.target.value)}
             >
-              <option value="all">Todos os tópicos</option>
+              <option value="all">All topics</option>
               {topics.map((value) => (
                 <option key={value} value={value}>
                   {value}
@@ -206,7 +206,7 @@ function RequirementsPage() {
               role="status"
               className="flex items-center gap-2 py-12 text-sm text-muted-foreground"
             >
-              <LoaderCircle className="size-4 animate-spin" /> Carregando
+              <LoaderCircle className="size-4 animate-spin" /> Loading
               requisitos...
             </div>
           )}
@@ -217,7 +217,7 @@ function RequirementsPage() {
                 <p className="text-sm">{error}</p>
               </div>
               <Button variant="outline" onClick={() => void loadRequirements()}>
-                <RefreshCw /> Tentar novamente
+                <RefreshCw /> Try again
               </Button>
             </Card>
           )}
@@ -227,13 +227,13 @@ function RequirementsPage() {
               <FileText className="size-8 text-muted-foreground" />
               <Typography as="h2" className="font-semibold">
                 {requirements.length
-                  ? "Nenhum requisito corresponde aos filtros"
-                  : "Nenhum requisito persistido"}
+                  ? "No requirement matches the filters"
+                  : "No saved requirements"}
               </Typography>
               <Typography as="p">
                 {requirements.length
-                  ? "Altere a pesquisa ou remova os filtros para ver outros resultados."
-                  : "Os requisitos aprovados aparecerão aqui quando forem persistidos pela API."}
+                  ? "Change the search or remove the filters to see other results."
+                  : "Approved requirements will appear here once the API saves them."}
               </Typography>
               {(search || status !== "all" || topic !== "all") && (
                 <Button
@@ -244,7 +244,7 @@ function RequirementsPage() {
                     setTopic("all");
                   }}
                 >
-                  Limpar filtros
+                  Clear filters
                 </Button>
               )}
             </Card>
@@ -259,9 +259,9 @@ function RequirementsPage() {
                       <div className="mb-2 flex flex-wrap gap-2">
                         <span className="rounded-full border px-2 py-0.5 text-xs">
                           {item.class === "FR"
-                            ? "Funcional"
+                            ? "Functional"
                             : item.class === "NFR"
-                              ? "Não funcional"
+                              ? "Non-functional"
                               : item.class}
                         </span>
                         <span className="rounded-full border px-2 py-0.5 text-xs">
@@ -293,14 +293,14 @@ function RequirementsPage() {
                   </div>
                   <div className="mt-auto flex items-center justify-between gap-3 border-t pt-3">
                     <span className="text-xs text-muted-foreground">
-                      Atualizado em {formatDate(item.updated_at)}
+                      Updated on {formatDate(item.updated_at)}
                     </span>
                     <Link
                       to="/projects/$projectId/requirements/$id"
                       params={{ projectId, id: item.id }}
                       className="inline-flex h-9 items-center justify-center gap-2 rounded-full border border-primary/50 px-3 text-sm transition-colors hover:bg-primary hover:text-foreground"
                     >
-                      Detalhes <ArrowUpRight className="size-4" />
+                      Details <ArrowUpRight className="size-4" />
                     </Link>
                   </div>
                 </Card>

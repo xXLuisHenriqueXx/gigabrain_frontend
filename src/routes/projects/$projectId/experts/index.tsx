@@ -25,7 +25,7 @@ export const Route = createFileRoute("/projects/$projectId/experts/")({ componen
 function formatDate(value: string): string {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "—";
-  return new Intl.DateTimeFormat("pt-BR", { dateStyle: "medium" }).format(date);
+  return new Intl.DateTimeFormat("en-US", { dateStyle: "medium" }).format(date);
 }
 
 function ExpertsPage() {
@@ -44,7 +44,7 @@ function ExpertsPage() {
       setError(
         getApiErrorMessage(
           requestError,
-          "Não foi possível carregar os especialistas.",
+          "Could not load the experts.",
         ),
       );
     } finally {
@@ -57,12 +57,12 @@ function ExpertsPage() {
   }, [loadExperts]);
 
   const filteredExperts = useMemo(() => {
-    const query = search.trim().toLocaleLowerCase("pt-BR");
+    const query = search.trim().toLocaleLowerCase("en-US");
     if (!query) return experts;
     return experts.filter((expert) =>
       [expert.id, expert.topic, expert.description, expert.file].some((value) =>
         String(value ?? "")
-          .toLocaleLowerCase("pt-BR")
+          .toLocaleLowerCase("en-US")
           .includes(query),
       ),
     );
@@ -75,10 +75,10 @@ function ExpertsPage() {
         <SidebarTrigger className="mt-1 shrink-0" />
         <div className="min-w-0 flex-1">
           <Typography as="h1" className="text-xl font-semibold">
-            Especialistas
+            Experts
           </Typography>
           <Typography as="p" className="mt-1">
-            Consulte os agentes especialistas e suas áreas de conhecimento.
+            Browse the expert agents and their areas of knowledge.
           </Typography>
         </div>
         <Button
@@ -88,7 +88,7 @@ function ExpertsPage() {
           disabled={isLoading}
         >
           <RefreshCw className={isLoading ? "animate-spin" : ""} />
-          <span className="hidden sm:inline">Atualizar</span>
+          <span className="hidden sm:inline">Refresh</span>
         </Button>
       </header>
 
@@ -101,27 +101,27 @@ function ExpertsPage() {
               </div>
               <div>
                 <Typography as="h2" className="font-semibold">
-                  Catálogo de especialistas
+                  Expert catalog
                 </Typography>
                 <Typography as="p">
-                  Cada especialista representa uma área de conhecimento
-                  consultável pelo Digital Twin.
+                  Each expert represents an area of knowledge
+                  the Digital Twin can consult.
                 </Typography>
               </div>
             </div>
             <Typography as="p" className="text-sm font-medium">
               {isLoading
-                ? "Carregando…"
-                : `${experts.length} ${experts.length === 1 ? "especialista" : "especialistas"}`}
+                ? "Loading…"
+                : `${experts.length} ${experts.length === 1 ? "expert" : "experts"}`}
             </Typography>
           </Card>
 
           <div className="relative">
             <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
-              aria-label="Pesquisar especialistas"
+              aria-label="Search experts"
               className="h-11 pl-9"
-              placeholder="Pesquisar por tópico, descrição ou arquivo..."
+              placeholder="Search by topic, description or file..."
               value={search}
               onChange={(event) => setSearch(event.target.value)}
             />
@@ -132,7 +132,7 @@ function ExpertsPage() {
               role="status"
               className="flex items-center gap-2 py-12 text-sm text-muted-foreground"
             >
-              <LoaderCircle className="size-4 animate-spin" /> Carregando
+              <LoaderCircle className="size-4 animate-spin" /> Loading
               especialistas...
             </div>
           )}
@@ -143,7 +143,7 @@ function ExpertsPage() {
                 <p className="text-sm">{error}</p>
               </div>
               <Button variant="outline" onClick={() => void loadExperts()}>
-                <RefreshCw /> Tentar novamente
+                <RefreshCw /> Try again
               </Button>
             </Card>
           )}
@@ -152,17 +152,17 @@ function ExpertsPage() {
               <BrainCircuit className="size-8 text-muted-foreground" />
               <Typography as="h2" className="font-semibold">
                 {experts.length
-                  ? "Nenhum especialista corresponde à pesquisa"
-                  : "Nenhum especialista encontrado"}
+                  ? "No expert matches the search"
+                  : "No experts found"}
               </Typography>
               <Typography as="p">
                 {experts.length
-                  ? "Tente outro termo de pesquisa."
-                  : "Quando a API disponibilizar especialistas, eles aparecerão aqui."}
+                  ? "Try another search term."
+                  : "When the API provides experts, they will appear here."}
               </Typography>
               {search && (
                 <Button variant="outline" onClick={() => setSearch("")}>
-                  Limpar pesquisa
+                  Clear search
                 </Button>
               )}
             </Card>
@@ -178,7 +178,7 @@ function ExpertsPage() {
                     </div>
                     <div className="min-w-0 flex-1">
                       <Typography as="h2" className="text-base font-semibold">
-                        {expert.topic || "Especialista sem tópico"}
+                        {expert.topic || "Expert without a topic"}
                       </Typography>
                       <p className="mt-1 wrap-break-word text-xs text-muted-foreground">
                         ID: {expert.id}
@@ -189,12 +189,12 @@ function ExpertsPage() {
                     </span>
                   </div>
                   <p className="whitespace-pre-wrap text-sm text-muted-foreground">
-                    {expert.description || "Sem descrição cadastrada."}
+                    {expert.description || "No description registered."}
                   </p>
                   <dl className="grid grid-cols-2 gap-3 rounded-xl bg-muted/40 p-3">
                     <div>
                       <dt className="text-xs text-muted-foreground">
-                        Consultas registradas
+                        Recorded consultations
                       </dt>
                       <dd className="mt-1 font-semibold">
                         {expert.consultations ?? 0}
@@ -202,7 +202,7 @@ function ExpertsPage() {
                     </div>
                     <div className="min-w-0">
                       <dt className="text-xs text-muted-foreground">
-                        Arquivo de conhecimento
+                        Knowledge file
                       </dt>
                       <dd className="mt-1 break-all text-sm">
                         {expert.file || "—"}
@@ -211,14 +211,14 @@ function ExpertsPage() {
                   </dl>
                   <div className="mt-auto flex items-center justify-between gap-3 border-t pt-3">
                     <span className="text-xs text-muted-foreground">
-                      Atualizado em {formatDate(expert.updated_at)}
+                      Updated on {formatDate(expert.updated_at)}
                     </span>
                     <Link
                       to="/projects/$projectId/experts/$id"
                       params={{ projectId, id: expert.id }}
                       className="inline-flex h-9 items-center justify-center gap-2 rounded-full border border-primary/50 px-3 text-sm transition-colors hover:bg-primary hover:text-foreground"
                     >
-                      Detalhes <ArrowUpRight className="size-4" />
+                      Details <ArrowUpRight className="size-4" />
                     </Link>
                   </div>
                 </Card>

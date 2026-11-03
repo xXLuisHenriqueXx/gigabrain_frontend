@@ -20,7 +20,7 @@ export const Route = createFileRoute("/projects/")({
 function formatDate(value: string): string {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "";
-  return new Intl.DateTimeFormat("pt-BR", { dateStyle: "medium" }).format(date);
+  return new Intl.DateTimeFormat("en-US", { dateStyle: "medium" }).format(date);
 }
 
 function ProjectsPage() {
@@ -40,7 +40,7 @@ function ProjectsPage() {
     try {
       setProjects(await ProjectsService.list());
     } catch (requestError) {
-      setError(getApiErrorMessage(requestError, "Não foi possível carregar os projetos."));
+      setError(getApiErrorMessage(requestError, "Could not load the projects."));
     } finally {
       setIsLoading(false);
     }
@@ -58,7 +58,7 @@ function ProjectsPage() {
       const project = await ProjectsService.create(name, description);
       await router.navigate({ to: "/projects/$projectId/chat", params: { projectId: project.id } });
     } catch (requestError) {
-      setError(getApiErrorMessage(requestError, "Não foi possível criar o projeto."));
+      setError(getApiErrorMessage(requestError, "Could not create the project."));
     } finally {
       setIsCreating(false);
     }
@@ -71,7 +71,7 @@ function ProjectsPage() {
       setEditing(null);
       await load();
     } catch (requestError) {
-      setError(getApiErrorMessage(requestError, "Não foi possível renomear o projeto."));
+      setError(getApiErrorMessage(requestError, "Could not rename the project."));
     }
   };
 
@@ -82,10 +82,10 @@ function ProjectsPage() {
         <SidebarTrigger className="mt-1 shrink-0" />
         <div className="min-w-0 flex-1">
           <Typography as="h1" className="text-xl font-semibold">
-            Projetos
+            Projects
           </Typography>
           <Typography as="p" className="mt-1">
-            Cada projeto tem seus próprios requisitos, conversas e especialistas.
+            Each project has its own requirements, conversations and experts.
           </Typography>
         </div>
       </header>
@@ -94,24 +94,24 @@ function ProjectsPage() {
         <div className="mx-auto flex w-full max-w-4xl flex-col gap-5">
           <Card className="gap-3">
             <Typography as="h2" className="font-semibold">
-              Novo projeto
+              New project
             </Typography>
             <Input
-              aria-label="Nome do projeto"
-              placeholder="Nome do projeto"
+              aria-label="Project name"
+              placeholder="Project name"
               value={name}
               maxLength={80}
               onChange={(event) => setName(event.target.value)}
               onKeyDown={(event) => event.key === "Enter" && void create()}
             />
             <Textarea
-              aria-label="Descrição do projeto"
-              placeholder="Do que se trata o projeto? (opcional)"
+              aria-label="Project description"
+              placeholder="What is the project about? (optional)"
               value={description}
               onChange={(event) => setDescription(event.target.value)}
             />
             <Button className="w-fit" disabled={!name.trim() || isCreating} onClick={() => void create()}>
-              {isCreating ? <LoaderCircle className="animate-spin" /> : <Plus />} Criar projeto
+              {isCreating ? <LoaderCircle className="animate-spin" /> : <Plus />} Create project
             </Button>
           </Card>
 
@@ -123,13 +123,13 @@ function ProjectsPage() {
 
           {isLoading && (
             <p role="status" className="flex items-center gap-2 text-sm text-muted-foreground">
-              <LoaderCircle className="size-4 animate-spin" /> Carregando projetos...
+              <LoaderCircle className="size-4 animate-spin" /> Loading projects...
             </p>
           )}
 
           {!isLoading && !error && projects.length === 0 && (
             <p className="text-sm text-muted-foreground">
-              Você ainda não tem projetos. Crie o primeiro acima para começar a definir requisitos.
+              You have no projects yet. Create the first one above to start defining requirements.
             </p>
           )}
 
@@ -141,7 +141,7 @@ function ProjectsPage() {
                     <FolderKanban className="mt-1 size-4 shrink-0" />
                     {editing === project.id ? (
                       <Input
-                        aria-label="Novo nome"
+                        aria-label="New name"
                         className="h-9 rounded-lg px-3 py-1"
                         value={editName}
                         autoFocus
@@ -160,7 +160,7 @@ function ProjectsPage() {
                     <Button
                       variant="ghost"
                       size="icon-sm"
-                      aria-label="Renomear projeto"
+                      aria-label="Rename project"
                       onClick={() => {
                         setEditing(project.id);
                         setEditName(project.name);
@@ -173,13 +173,13 @@ function ProjectsPage() {
                     <p className="line-clamp-3 text-sm text-muted-foreground">{project.description}</p>
                   )}
                   <div className="mt-auto flex items-center justify-between pt-2 text-xs text-muted-foreground">
-                    <span>Criado em {formatDate(project.created_at)}</span>
+                    <span>Created on {formatDate(project.created_at)}</span>
                     <Link
                       to="/projects/$projectId/chat"
                       params={{ projectId: project.id }}
                       className="inline-flex items-center gap-1 text-sm text-foreground underline underline-offset-4"
                     >
-                      Abrir <ArrowUpRight className="size-4" />
+                      Open <ArrowUpRight className="size-4" />
                     </Link>
                   </div>
                 </Card>

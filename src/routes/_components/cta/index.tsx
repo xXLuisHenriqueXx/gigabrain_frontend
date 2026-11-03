@@ -10,17 +10,17 @@ const CTA = () => {
     <section className="flex min-h-[50dvh] items-center justify-center border-t px-4 py-24">
       <div className="max-w-2xl space-y-6 text-center">
         <Typography as="h2" className="text-4xl">
-          Ready to build with{" "}
-          <span className="text-primary">less busywork</span>?
+          Ready to define your{" "}
+          <span className="text-primary">first project</span>?
         </Typography>
 
         <Typography as="p">
-          Start turning your product ideas into structured software
-          requirements.
+          Create a project and start turning your ideas into structured
+          software requirements.
         </Typography>
 
         <Button onClick={() => router.navigate({ to: "/projects" })}>
-          Get Started
+          Create a project
         </Button>
       </div>
     </section>

@@ -40,13 +40,13 @@ import { LlmKeyForm } from "./LlmKeyForm";
 
 function getConversationLabel(conversation: ConversationSummary): string {
   if (conversation.title?.trim()) return conversation.title.trim();
-  return `Conversa ${conversation.id.slice(0, 8)}`;
+  return `Conversation ${conversation.id.slice(0, 8)}`;
 }
 
 function formatDate(value: string): string {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "";
-  return new Intl.DateTimeFormat("pt-BR", {
+  return new Intl.DateTimeFormat("en-US", {
     day: "2-digit",
     month: "2-digit",
   }).format(date);
@@ -92,7 +92,7 @@ export function AppSidebar() {
       setError(
         getApiErrorMessage(
           requestError,
-          "Não foi possível carregar o histórico.",
+          "Could not load the history.",
         ),
       );
     } finally {
@@ -124,10 +124,10 @@ export function AppSidebar() {
                 <SidebarMenuButton
                   render={<Link to="/projects" />}
                   isActive={pathname === "/projects"}
-                  tooltip="Projetos"
+                  tooltip="Projects"
                 >
                   <FolderKanban />
-                  <span>Projetos</span>
+                  <span>Projects</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               {projectId && (
@@ -146,10 +146,10 @@ export function AppSidebar() {
                     />
                   }
                   isActive={pathname.endsWith("/chat")}
-                  tooltip="Nova conversa"
+                  tooltip="New conversation"
                 >
                   <Plus />
-                  <span>Nova conversa</span>
+                  <span>New conversation</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
@@ -161,10 +161,10 @@ export function AppSidebar() {
                     />
                   }
                   isActive={pathname.includes("/requirements")}
-                  tooltip="Requisitos"
+                  tooltip="Requirements"
                 >
                   <FileText />
-                  <span>Requisitos</span>
+                  <span>Requirements</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
@@ -176,10 +176,10 @@ export function AppSidebar() {
                     />
                   }
                   isActive={pathname.includes("/experts")}
-                  tooltip="Especialistas"
+                  tooltip="Experts"
                 >
                   <BrainCircuit />
-                  <span>Especialistas</span>
+                  <span>Experts</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
                 </>
@@ -192,13 +192,13 @@ export function AppSidebar() {
         <SidebarGroup>
           <div className="flex items-center justify-between gap-2 px-2">
             <SidebarGroupLabel className="px-0">
-              Conversas recentes
+              Recent conversations
             </SidebarGroupLabel>
             <Button
               variant="ghost"
               size="icon"
               className="size-7"
-              aria-label="Atualizar conversas"
+              aria-label="Refresh conversations"
               onClick={() => void loadConversations()}
               disabled={isLoading}
             >
@@ -218,7 +218,7 @@ export function AppSidebar() {
                     className="flex items-center gap-2 px-2 py-3 text-xs text-muted-foreground"
                   >
                     <LoaderCircle className="size-3.5 animate-spin" />{" "}
-                    Carregando histórico...
+                    Loading history...
                   </div>
                 </SidebarMenuItem>
               )}
@@ -237,7 +237,7 @@ export function AppSidebar() {
                     className="ml-1 h-7 px-2 text-xs"
                     onClick={() => void loadConversations()}
                   >
-                    Tentar novamente
+                    Try again
                   </Button>
                 </SidebarMenuItem>
               )}
@@ -245,7 +245,7 @@ export function AppSidebar() {
               {!isLoading && !error && conversations.length === 0 && (
                 <SidebarMenuItem>
                   <Typography as="p" className="px-2 py-3 text-xs">
-                    Nenhuma conversa encontrada.
+                    No conversations found.
                   </Typography>
                 </SidebarMenuItem>
               )}
@@ -282,18 +282,18 @@ export function AppSidebar() {
           <SidebarMenuItem>
             <details className="group">
               <summary className="list-none">
-                <SidebarMenuButton tooltip="Configurações" render={<div />}>
+                <SidebarMenuButton tooltip="Settings" render={<div />}>
                   <Settings />
-                  <span>Configurações</span>
+                  <span>Settings</span>
                 </SidebarMenuButton>
               </summary>
               <LlmKeyForm />
             </details>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton tooltip="Perfil" disabled>
+            <SidebarMenuButton tooltip="Profile" disabled>
               <User />
-              <span>Perfil</span>
+              <span>Profile</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

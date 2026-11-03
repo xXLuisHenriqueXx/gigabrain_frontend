@@ -59,7 +59,7 @@ export const HistoryService = {
     if (Array.isArray(data.items)) return data.items;
     if (Array.isArray(data.results)) return data.results;
     throw new Error(
-      "A API retornou uma lista de requisitos em formato inesperado.",
+      "The API returned a list of requirements in an unexpected format.",
     );
   },
 
@@ -82,7 +82,7 @@ export const HistoryService = {
     if (Array.isArray(data.items)) return data.items;
     if (Array.isArray(data.results)) return data.results;
     throw new Error(
-      "A API retornou uma lista de especialistas em formato inesperado.",
+      "The API returned a list of experts in an unexpected format.",
     );
   },
 

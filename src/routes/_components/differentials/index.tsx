@@ -9,47 +9,73 @@ function Differentials() {
       <div className="w-full max-w-5xl space-y-12">
         <div className="mx-auto max-w-2xl space-y-4 text-center">
           <Typography as="span" className="text-sm font-medium text-primary">
-            DIFFERENTIALS
+            WHAT YOU GET
           </Typography>
 
           <Typography as="h2" className="text-4xl">
-            Less overhead. <span className="text-primary">More clarity.</span>
+            Less guesswork. <span className="text-primary">More clarity.</span>
           </Typography>
 
           <Typography as="p">
-            Designed to support product thinking without adding another layer of
-            unnecessary complexity to your workflow.
+            Built around requirements engineering practice, not around task
+            lists.
           </Typography>
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           <div className="space-y-3">
             <Typography as="h3" className="text-xl font-semibold">
-              Product-focused
+              Structured by default
             </Typography>
             <Typography as="p">
-              Focus on problems, users, requirements, and outcomes instead of
-              simply generating more tasks.
+              Statements follow EARS patterns, stories name a role, a goal and a
+              benefit, and criteria use Given/When/Then.
             </Typography>
           </div>
 
           <div className="space-y-3">
             <Typography as="h3" className="text-xl font-semibold">
-              Context-aware
+              Experts per topic
             </Typography>
             <Typography as="p">
-              Keep your project context organized so conversations lead to more
-              relevant product decisions.
+              Each topic, such as payments or search, has an expert that keeps
+              its knowledge in a file and grows as the project does.
             </Typography>
           </div>
 
           <div className="space-y-3">
             <Typography as="h3" className="text-xl font-semibold">
-              Developer-friendly
+              Validated
             </Typography>
             <Typography as="p">
-              Turn product discussions into structured information that
-              developers can actually work with.
+              A Critic scores every proposal on competencies such as ambiguity,
+              completeness and verifiability, and reports what to fix.
+            </Typography>
+          </div>
+          <div className="space-y-3">
+            <Typography as="h3" className="text-xl font-semibold">
+              Traceable
+            </Typography>
+            <Typography as="p">
+              Every requirement shows how it came to be: the conversation, the experts consulted and each version.
+            </Typography>
+          </div>
+
+          <div className="space-y-3">
+            <Typography as="h3" className="text-xl font-semibold">
+              One project at a time
+            </Typography>
+            <Typography as="p">
+              Requirements, conversations and experts of a project stay apart from the others.
+            </Typography>
+          </div>
+
+          <div className="space-y-3">
+            <Typography as="h3" className="text-xl font-semibold">
+              You decide
+            </Typography>
+            <Typography as="p">
+              The system proposes and recommends. You approve, adjust or discard.
             </Typography>
           </div>
         </div>

@@ -75,7 +75,7 @@ function Chat() {
     try {
       const response = await ChatService.openChat(projectId);
       if (typeof response.id !== "string" || !response.id) {
-        throw new Error("A API não retornou um ID de conversa válido.");
+        throw new Error("The API did not return a valid conversation ID.");
       }
 
       setConversationId(response.id);
@@ -87,7 +87,7 @@ function Chat() {
       setError(
         getApiErrorMessage(
           requestError,
-          "Não foi possível iniciar a conversa. Tente novamente.",
+          "Could not start the conversation. Try again.",
         ),
       );
       openingRef.current = false;
@@ -124,8 +124,8 @@ function Chat() {
     if (answer.action === "approved") {
       setNotice(
         answer.saved?.length
-          ? `Requisitos aprovados e salvos: ${answer.saved.join(", ")}.`
-          : "A aprovação foi confirmada pela API.",
+          ? `Approved and saved requirements: ${answer.saved.join(", ")}.`
+          : "The API confirmed the approval.",
       );
     } else {
       setNotice(null);
@@ -166,7 +166,7 @@ function Chat() {
       setError(
         getApiErrorMessage(
           requestError,
-          "Não foi possível enviar a mensagem. Tente novamente.",
+          "Could not send the message. Try again.",
         ),
       );
     } finally {
@@ -188,14 +188,14 @@ function Chat() {
       appendAnswer(answer);
       if (answer.action !== "approved") {
         setNotice(
-          "A API respondeu à solicitação, mas não confirmou a aprovação. Confira a resposta antes de continuar.",
+          "The API answered the request but did not confirm the approval. Check the response before continuing.",
         );
       }
     } catch (requestError) {
       setError(
         getApiErrorMessage(
           requestError,
-          "Não foi possível aprovar a proposta. Nenhuma aprovação será presumida.",
+          "Could not approve the proposal. No approval will be assumed.",
         ),
       );
     } finally {
@@ -213,7 +213,7 @@ function Chat() {
     )
       return;
     if (
-      !window.confirm("Encerrar esta conversa sem aprovar a proposta pendente?")
+      !window.confirm("Close this conversation without approving the pending proposal?")
     )
       return;
 
@@ -225,12 +225,12 @@ function Chat() {
       await ChatService.close(projectId, conversationId);
       setIsConversationActive(false);
       setHasPendingProposal(false);
-      setNotice("Conversa encerrada. Nenhum requisito pendente foi aprovado.");
+      setNotice("Conversation closed. No pending requirement was approved.");
     } catch (requestError) {
       setError(
         getApiErrorMessage(
           requestError,
-          "Não foi possível encerrar a conversa. Tente novamente.",
+          "Could not close the conversation. Try again.",
         ),
       );
     } finally {
@@ -254,15 +254,15 @@ function Chat() {
               {getWelcomeMessage()}
             </Typography>
             <Typography as="p" className="mt-1">
-              Converse com o Digital Twin para definir e refinar os requisitos
-              do projeto.
+              Talk to the Digital Twin to define and refine the requirements
+              of the project.
             </Typography>
             {conversationId && (
               <p
                 className="mt-2 truncate text-xs text-muted-foreground"
                 title={conversationId}
               >
-                Conversa: {conversationId}
+                Conversation: {conversationId}
               </p>
             )}
           </div>
@@ -274,14 +274,14 @@ function Chat() {
               onClick={() => void closeConversation()}
             >
               <XCircle />
-              <span className="hidden sm:inline">Encerrar</span>
+              <span className="hidden sm:inline">Close</span>
             </Button>
           )}
         </div>
       </header>
 
       <section
-        aria-label="Histórico da conversa"
+        aria-label="Conversation history"
         aria-live="polite"
         className="min-h-0 flex-1 overflow-y-auto px-4 py-6 sm:px-8"
       >
@@ -292,7 +292,7 @@ function Chat() {
               className="flex items-center gap-3 text-sm text-muted-foreground"
             >
               <LoaderCircle className="size-4 animate-spin" />
-              Iniciando conversa com o Digital Twin...
+              Starting the conversation with the Digital Twin...
             </div>
           )}
 
@@ -302,12 +302,12 @@ function Chat() {
                 <MessageSquare className="size-6 text-muted-foreground" />
               </div>
               <Typography as="h2" className="text-lg font-semibold">
-                Por onde começamos?
+                Where do we start?
               </Typography>
               <Typography as="p">
-                Descreva o problema que o sistema deve resolver, quem vai
-                utilizá-lo ou uma necessidade inicial. O Twin fará perguntas
-                para esclarecer os requisitos.
+                Describe the problem the system should solve, who will use it,
+                or an initial need. The Twin will ask questions to clarify
+                the requirements.
               </Typography>
             </div>
           )}
@@ -322,7 +322,7 @@ function Chat() {
               >
                 <span className="px-1 text-xs font-medium text-muted-foreground">
                   {item.author === "po"
-                    ? "Você · Product Owner"
+                    ? "You · Product Owner"
                     : "GigaBrain · Digital Twin"}
                 </span>
                 <div
@@ -334,7 +334,7 @@ function Chat() {
                 {item.requirements && item.requirements.length > 0 && (
                   <div className="flex w-full flex-col gap-3 pt-1">
                     <Typography as="h3" className="font-semibold">
-                      Requisitos propostos ({item.requirements.length})
+                      Proposed requirements ({item.requirements.length})
                     </Typography>
                     {item.requirements.map((requirement, index) => (
                       <RequirementProposal
@@ -355,14 +355,14 @@ function Chat() {
                       loading={isApproving}
                     >
                       <CheckCircle2 />
-                      Aprovar proposta
+                      Approve proposal
                     </Button>
                     <Button
                       variant="outline"
                       onClick={() => composerRef.current?.focus()}
                       disabled={isBusy}
                     >
-                      Solicitar ajustes
+                      Request changes
                     </Button>
                   </div>
                 ) : null}
@@ -411,8 +411,8 @@ function Chat() {
               role="status"
               className="flex items-center gap-3 text-sm text-muted-foreground"
             >
-              <LoaderCircle className="size-4 animate-spin" />O Digital Twin
-              está analisando sua mensagem. Isso pode levar até um minuto.
+              <LoaderCircle className="size-4 animate-spin" />The Digital Twin
+              is analyzing your message. This can take up to a minute.
             </div>
           )}
 
@@ -430,7 +430,7 @@ function Chat() {
                   onClick={() => void openConversation()}
                   disabled={isOpening}
                 >
-                  <RotateCcw /> Tentar novamente
+                  <RotateCcw /> Try again
                 </Button>
               )}
             </div>
@@ -449,17 +449,17 @@ function Chat() {
           {!isConversationActive && conversationId && (
             <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed p-5 text-center">
               <Typography as="h3" className="font-semibold">
-                Conversa encerrada
+                Conversation closed
               </Typography>
               <Typography as="p">
-                Inicie uma nova conversa para continuar refinando os requisitos.
+                Start a new conversation to keep refining the requirements.
               </Typography>
               <Button
                 variant="outline"
                 onClick={() => void openConversation()}
                 disabled={isBusy}
               >
-                <RotateCcw /> Nova conversa
+                <RotateCcw /> New conversation
               </Button>
             </div>
           )}
@@ -493,12 +493,12 @@ function Chat() {
             disabled={isBusy || !conversationId || !isConversationActive}
             placeholder={
               isOpening
-                ? "Iniciando conversa..."
+                ? "Starting conversation..."
                 : !isConversationActive
-                  ? "Esta conversa foi encerrada"
-                  : "Descreva uma necessidade ou responda à pergunta do Twin..."
+                  ? "This conversation was closed"
+                  : "Describe a need or answer the Twin's question..."
             }
-            aria-label="Mensagem para o Digital Twin"
+            aria-label="Message to the Digital Twin"
           />
           <Button
             type="submit"
@@ -511,14 +511,14 @@ function Chat() {
               !isConversationActive ||
               !message.trim()
             }
-            aria-label="Enviar mensagem"
+            aria-label="Send message"
           >
             <Send />
           </Button>
         </form>
         <p className="mx-auto mt-2 w-full max-w-4xl text-xs text-muted-foreground">
-          Enter envia · Shift + Enter quebra a linha. A aprovação é necessária
-          para salvar requisitos.
+          Enter sends · Shift + Enter adds a line break. Approval is required
+          to save requirements.
         </p>
       </footer>
     </main>
@@ -560,10 +560,10 @@ function RequirementProposal({
       {requirement.story && (
         <div className="rounded-xl bg-muted/40 p-3">
           <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            História de usuário
+            User story
           </p>
           <p className="text-sm">
-            Como {requirement.story.role}, quero {requirement.story.goal}, para{" "}
+            As {requirement.story.role}, I want {requirement.story.goal}, so that{" "}
             {requirement.story.benefit}.
           </p>
         </div>
@@ -572,7 +572,7 @@ function RequirementProposal({
       {requirement.acceptance_criteria?.length > 0 && (
         <div className="flex flex-col gap-2">
           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            Critérios de aceitação
+            Acceptance criteria
           </p>
           {requirement.acceptance_criteria.map((criterion, index) => (
             <div
@@ -581,13 +581,13 @@ function RequirementProposal({
             >
               <p className="mb-2 font-medium">{criterion.scenario}</p>
               <p>
-                <span className="font-medium">Dado que</span> {criterion.given}
+                <span className="font-medium">Given</span> {criterion.given}
               </p>
               <p>
-                <span className="font-medium">Quando</span> {criterion.when}
+                <span className="font-medium">When</span> {criterion.when}
               </p>
               <p>
-                <span className="font-medium">Então</span> {criterion.then}
+                <span className="font-medium">Then</span> {criterion.then}
               </p>
             </div>
           ))}
@@ -599,23 +599,23 @@ function RequirementProposal({
       {requirement.quality && (
         <details className="rounded-xl border px-3 py-2">
           <summary className="cursor-pointer text-sm font-medium">
-            Verificações de qualidade
+            Quality checks
           </summary>
           <dl className="mt-3 grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
             <QualityItem
-              label="Formato EARS"
+              label="EARS format"
               valid={requirement.quality.ears}
             />
             <QualityItem
-              label="História completa"
+              label="Complete story"
               valid={requirement.quality.story_complete}
             />
             <QualityItem
-              label="Critérios Gherkin"
+              label="Gherkin criteria"
               valid={requirement.quality.criteria_gherkin}
             />
             <div className="rounded-lg bg-muted/40 p-2">
-              <dt className="text-muted-foreground">Quantidade de critérios</dt>
+              <dt className="text-muted-foreground">Number of criteria</dt>
               <dd className="font-medium">
                 {requirement.quality.criteria_count}
               </dd>
@@ -623,7 +623,7 @@ function RequirementProposal({
             {requirement.quality.vague_terms?.length > 0 && (
               <div className="rounded-lg bg-destructive/5 p-2 sm:col-span-2">
                 <dt className="text-muted-foreground">
-                  Termos vagos identificados
+                  Vague terms found
                 </dt>
                 <dd className="font-medium">
                   {requirement.quality.vague_terms.join(", ")}

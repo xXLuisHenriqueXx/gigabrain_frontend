@@ -12,19 +12,20 @@ function Hero() {
   return (
     <section className="relative flex min-h-dvh flex-col items-center justify-center gap-8">
       <HexagonPattern
-        className="animate-pulse mask-[radial-gradient(480px_circle_at_center,white,transparent)]"
+        className="animate-pulse stroke-primary/50 mask-[radial-gradient(760px_circle_at_center,white,transparent)]"
         gap={16}
       />
 
       <div className="max-w-2xl space-y-2 px-4 text-center">
         <Typography as="h1" className="text-5xl">
-          Build better software, without the{" "}
-          <span className="text-primary">busywork</span>.
+          Define software requirements by{" "}
+          <span className="text-primary">talking</span>.
         </Typography>
 
         <Typography as="p">
-          Your personal Product Owner assistant to plan, refine, and manage your
-          software projects with ease.
+          GigaBrain pairs you with a Digital Twin and a council of topic
+          experts that turn your ideas into well-defined requirements: user
+          stories with acceptance criteria, saved project by project.
         </Typography>
       </div>
 
@@ -33,7 +34,7 @@ function Hero() {
           className="w-full flex-1"
           onClick={() => router.navigate({ to: "/projects" })}
         >
-          Get Started
+          Get started
         </Button>
 
         <Button
@@ -41,7 +42,7 @@ function Hero() {
           variant="outline"
           onClick={() => scrollTo("methodology")}
         >
-          Our Methodology
+          How it works
         </Button>
       </div>
     </section>

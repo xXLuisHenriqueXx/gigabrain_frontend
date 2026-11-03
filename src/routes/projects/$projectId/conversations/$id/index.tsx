@@ -29,7 +29,7 @@ export const Route = createFileRoute("/projects/$projectId/conversations/$id/")(
 function formatTimestamp(value: string): string {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "";
-  return new Intl.DateTimeFormat("pt-BR", {
+  return new Intl.DateTimeFormat("en-US", {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(date);
@@ -58,7 +58,7 @@ function ConversationDetailsPage() {
       setError(
         getApiErrorMessage(
           requestError,
-          "Não foi possível carregar esta conversa.",
+          "Could not load this conversation.",
         ),
       );
     } finally {
@@ -70,7 +70,7 @@ function ConversationDetailsPage() {
     void loadConversation();
   }, [loadConversation]);
 
-  const title = conversation?.title?.trim() || `Conversa ${id.slice(0, 8)}`;
+  const title = conversation?.title?.trim() || `Conversation ${id.slice(0, 8)}`;
 
   return (
     <main className="flex h-dvh min-h-140 w-full flex-col overflow-hidden">
@@ -82,12 +82,12 @@ function ConversationDetailsPage() {
             {title}
           </Typography>
           <Typography as="p" className="mt-1">
-            Histórico da conversa com o Digital Twin
+            Conversation history with the Digital Twin
           </Typography>
           {conversation && (
             <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
               <span className="inline-flex items-center gap-1">
-                <Clock3 className="size-3.5" /> Iniciada em{" "}
+                <Clock3 className="size-3.5" /> Started on{" "}
                 {formatTimestamp(conversation.started_at)}
               </span>
               <span className="rounded-full border px-2 py-0.5">
@@ -95,7 +95,7 @@ function ConversationDetailsPage() {
               </span>
               {conversation.pending_proposal && (
                 <span className="rounded-full border border-amber-500/40 px-2 py-0.5 text-amber-700">
-                  Proposta pendente
+                  Pending proposal
                 </span>
               )}
             </div>
@@ -108,12 +108,12 @@ function ConversationDetailsPage() {
           disabled={isLoading}
         >
           <RefreshCw className={isLoading ? "animate-spin" : ""} />
-          <span className="hidden sm:inline">Atualizar</span>
+          <span className="hidden sm:inline">Refresh</span>
         </Button>
       </header>
 
       <section
-        aria-label="Mensagens da conversa"
+        aria-label="Conversation messages"
         className="min-h-0 flex-1 overflow-y-auto px-4 py-6 sm:px-8"
       >
         <div className="mx-auto flex w-full max-w-4xl flex-col gap-5">
@@ -122,7 +122,7 @@ function ConversationDetailsPage() {
               role="status"
               className="flex items-center gap-2 py-8 text-sm text-muted-foreground"
             >
-              <LoaderCircle className="size-4 animate-spin" /> Carregando
+              <LoaderCircle className="size-4 animate-spin" /> Loading
               mensagens da conversa...
             </div>
           )}
@@ -135,11 +135,11 @@ function ConversationDetailsPage() {
               </div>
               <div className="flex flex-wrap gap-2">
                 <Button onClick={() => void loadConversation()}>
-                  <RefreshCw /> Tentar novamente
+                  <RefreshCw /> Try again
                 </Button>
                 <Link to="/projects/$projectId/chat" params={{ projectId }}>
                   <Button variant="outline">
-                    <ArrowLeft /> Nova conversa
+                    <ArrowLeft /> New conversation
                   </Button>
                 </Link>
               </div>
@@ -153,14 +153,14 @@ function ConversationDetailsPage() {
               <div className="flex flex-col items-center gap-3 py-16 text-center">
                 <MessageSquare className="size-8 text-muted-foreground" />
                 <Typography as="h2" className="text-lg font-semibold">
-                  Esta conversa ainda não tem mensagens
+                  This conversation has no messages yet
                 </Typography>
                 <Typography as="p">
-                  Você pode iniciar uma nova conversa enquanto o histórico
-                  permanece disponível.
+                  You can start a new conversation while the history
+                  remains available.
                 </Typography>
                 <Link to="/projects/$projectId/chat" params={{ projectId }}>
-                  <Button>Nova conversa</Button>
+                  <Button>New conversation</Button>
                 </Link>
               </div>
             )}
@@ -189,7 +189,7 @@ function ConversationDetailsPage() {
                   {(message.proposed_requirements?.length ?? 0) > 0 && (
                     <div className="w-full rounded-xl border p-3">
                       <Typography as="h3" className="mb-2 font-semibold">
-                        Requisitos propostos (
+                        Proposed requirements (
                         {message.proposed_requirements.length})
                       </Typography>
                       <ul className="flex flex-col gap-2">
@@ -221,7 +221,7 @@ function ConversationDetailsPage() {
                   )}
                   {(message.saved?.length ?? 0) > 0 && (
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <CheckCircle2 className="size-3.5" /> Requisitos salvos:{" "}
+                      <CheckCircle2 className="size-3.5" /> Saved requirements:{" "}
                       {message.saved.join(", ")}
                     </div>
                   )}
@@ -235,7 +235,7 @@ function ConversationDetailsPage() {
             conversation.saved_requirements.length > 0 && (
               <Card className="gap-2 rounded-2xl p-4">
                 <Typography as="h3" className="font-semibold">
-                  Requisitos persistidos
+                  Saved requirements
                 </Typography>
                 <div className="flex flex-wrap gap-2">
                   {conversation.saved_requirements.map((requirementId) => (
@@ -252,8 +252,8 @@ function ConversationDetailsPage() {
 
           {conversation && !conversation.active && !isLoading && !error && (
             <p className="rounded-xl border border-dashed p-3 text-center text-sm text-muted-foreground">
-              Esta conversa está encerrada. O histórico permanece disponível
-              para consulta.
+              This conversation is closed. The history remains available
+              for reference.
             </p>
           )}
         </div>

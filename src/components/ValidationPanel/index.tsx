@@ -30,7 +30,7 @@ export function ValidationPanel({ validation }: { validation?: ValidationReport 
   return (
     <details className="rounded-xl border px-3 py-2" open={failed.length > 0}>
       <summary className="cursor-pointer text-sm font-medium">
-        Validação do Crítico · <span className="capitalize">{label(validation.verdict)}</span>
+        Critic validation · <span className="capitalize">{label(validation.verdict)}</span>
       </summary>
       <div className="mt-3 flex flex-col gap-3">
         {items.length > 0 && (
@@ -64,7 +64,7 @@ export function ValidationPanel({ validation }: { validation?: ValidationReport 
         )}
         {validation.saved_with && (
           <p className="text-xs text-muted-foreground">
-            Salvo com o relatório {validation.saved_with.report_id}
+            Saved with report {validation.saved_with.report_id}
             {validation.saved_with.verdict ? ` (${label(validation.saved_with.verdict)})` : ""}.
           </p>
         )}

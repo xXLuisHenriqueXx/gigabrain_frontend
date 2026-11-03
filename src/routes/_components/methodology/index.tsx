@@ -6,49 +6,50 @@ function Methodology() {
       <div className="mx-auto w-full max-w-5xl space-y-12">
         <div className="max-w-2xl space-y-4">
           <Typography as="span" className="text-sm font-medium text-primary">
-            METHODOLOGY
+            HOW IT WORKS
           </Typography>
 
           <Typography as="h2" className="text-4xl">
-            A structured approach to{" "}
-            <span className="text-primary">product development</span>.
+            A conversation, a council and{" "}
+            <span className="text-primary">your final say</span>.
           </Typography>
 
           <Typography as="p">
-            The assistant follows a structured product-oriented workflow,
-            helping you move from an initial idea to requirements that are ready
-            for implementation.
+            Every requirement goes through the same path, from your first
+            message to the moment you approve it.
           </Typography>
         </div>
 
         <div className="grid gap-6 md:grid-cols-3">
           <div className="space-y-3 rounded-xl border bg-background p-6">
             <Typography as="h3" className="text-xl font-semibold">
-              01. Discover
+              01. Talk
             </Typography>
             <Typography as="p">
-              Understand the problem, users, goals, and context behind the
-              product.
+              Describe a need in your own words. The Digital Twin, your
+              counterpart in the system, asks questions until the request is
+              clear.
             </Typography>
           </div>
 
           <div className="space-y-3 rounded-xl border bg-background p-6">
             <Typography as="h3" className="text-xl font-semibold">
-              02. Refine
+              02. Deliberate
             </Typography>
             <Typography as="p">
-              Transform ideas into clear requirements, user stories, and
-              actionable tasks.
+              The Twin consults a Leader, who routes each question to the
+              expert of that topic. The Critic scores the proposal and sends
+              back what does not pass.
             </Typography>
           </div>
 
           <div className="space-y-3 rounded-xl border bg-background p-6">
             <Typography as="h3" className="text-xl font-semibold">
-              03. Deliver
+              03. Approve
             </Typography>
             <Typography as="p">
-              Keep the product organized and maintain alignment between product
-              decisions and development.
+              Nothing is saved without your explicit approval. Approved
+              requirements keep their versions, links and origin.
             </Typography>
           </div>
         </div>

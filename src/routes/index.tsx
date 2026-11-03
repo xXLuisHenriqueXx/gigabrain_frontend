@@ -3,6 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import Hero from "./_components/hero";
 import About from "./_components/about";
 import Methodology from "./_components/methodology";
+import Architecture from "./_components/architecture";
 import Differentials from "./_components/differentials";
 import CTA from "./_components/cta";
 
@@ -16,6 +17,7 @@ function Index() {
       <Hero />
       <About />
       <Methodology />
+      <Architecture />
       <Differentials />
       <CTA />
     </main>

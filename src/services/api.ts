@@ -31,10 +31,10 @@ export function getApiErrorMessage(error: unknown, fallback: string): string {
 
     if (typeof detail === "string" && detail.trim()) return detail;
     if (error.code === "ECONNABORTED") {
-      return "A API demorou para responder. Tente novamente.";
+      return "The API took too long to respond. Try again.";
     }
     if (!error.response) {
-      return "Não foi possível conectar à API. Verifique se o backend está em execução.";
+      return "Could not reach the API. Check that the backend is running.";
     }
   }
 

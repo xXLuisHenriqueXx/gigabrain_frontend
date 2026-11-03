@@ -19,21 +19,21 @@ export function LlmKeyForm() {
   return (
     <div className="flex flex-col gap-2 px-2 pb-2">
       <label htmlFor="llm-key" className="flex items-center gap-2 text-xs font-medium">
-        <KeyRound className="size-3.5" /> Chave do DeepSeek
-        {saved && <span className="ml-auto text-emerald-600">salva</span>}
+        <KeyRound className="size-3.5" /> DeepSeek key
+        {saved && <span className="ml-auto text-emerald-600">saved</span>}
       </label>
       <Input
         id="llm-key"
         type="password"
         autoComplete="off"
         className="h-9 rounded-lg px-3 py-1"
-        placeholder={saved ? "•••••••• (digite para trocar)" : "sk-..."}
+        placeholder={saved ? "•••••••• (type to replace)" : "sk-..."}
         value={value}
         onChange={(event) => setValue(event.target.value)}
       />
       <div className="flex gap-2">
         <Button className="h-8 flex-1 text-xs" disabled={!value.trim()} onClick={save}>
-          Salvar
+          Save
         </Button>
         {saved && (
           <Button
@@ -44,12 +44,12 @@ export function LlmKeyForm() {
               setSaved(false);
             }}
           >
-            Remover
+            Remove
           </Button>
         )}
       </div>
       <p className="text-[11px] leading-snug text-muted-foreground">
-        Fica só neste navegador e vale para as próximas conversas.
+        Stays in this browser only and applies to the next conversations.
       </p>
     </div>
   );

@@ -1,77 +1,73 @@
 # GigaBrain Frontend
 
-Frontend do GigaBrain, construído com React, TypeScript, Vite e TanStack Router.
+Web application of GigaBrain, built with React, TypeScript, Vite and TanStack Router. The
+Product Owner (PO) creates projects, talks to the Digital Twin to define requirements and
+browses the requirements and experts of each project.
 
-## Requisitos
+## Requirements
 
-- Node.js compatível com a versão de Vite usada pelo projeto.
-- API do GigaBrain em execução local ou acessível pela URL configurada.
+- Node.js compatible with the Vite version of the project.
+- The GigaBrain API running locally or reachable at the configured URL
+  (`python main.py api` in the backend repository).
 
-## Configuração da API
+## API configuration
 
-Copie `.env.example` para `.env.local` e ajuste os valores conforme seu ambiente:
+Copy `.env.example` to `.env.local` and adjust it:
 
 ```env
 VITE_API_BASE_URL=http://127.0.0.1:8000/api/v1
 VITE_API_TOKEN=
 ```
 
-`VITE_API_BASE_URL` define a URL base do backend. Se omitida, o frontend usa `http://127.0.0.1:8000/api/v1`.
+`VITE_API_BASE_URL` is the base URL of the backend (default: `http://127.0.0.1:8000/api/v1`).
 
-`VITE_API_TOKEN` é opcional e serve apenas para desenvolvimento local quando a API foi iniciada com `--token`. Variáveis `VITE_*` são incorporadas ao bundle do navegador; **não coloque segredos de produção nessa variável**. Em produção, a autenticação deve ser projetada para o ambiente de implantação, sem expor credenciais privilegiadas no cliente.
+`VITE_API_TOKEN` is optional and only for local development, when the API was started with
+`--token`. `VITE_*` variables are embedded in the browser bundle: **do not put production
+secrets in it**.
 
-A API disponibiliza documentação interativa em `http://127.0.0.1:8000/docs` quando executada localmente.
+The API documents itself at `http://127.0.0.1:8000/docs`.
 
-## Desenvolvimento
+### DeepSeek key
+
+The key can be set on the server (`DEEPSEEK_API_KEY`) or typed in the app, under **Settings**
+in the sidebar. A key typed in the app stays in the browser (`localStorage`) and is sent to
+the API in the `X-LLM-Key` header when a conversation is opened; the API does not store it.
+
+## Development
 
 ```bash
 npm install
 npm run dev
 ```
 
-## Verificações
+## Checks
 
 ```bash
 npm run build
 npm run lint
 ```
 
-## Estrutura de integração
+## Routes
 
-- `src/services/api.ts`: cliente Axios compartilhado, configuração de ambiente, timeout e normalização de mensagens de erro.
-- `src/services/api.types.ts`: contratos TypeScript da API.
-- `src/services/chat.service.ts`: abertura, envio de mensagens, aprovação e encerramento de conversas.
-- `src/services/history.service.ts`: consultas de conversas, eventos, requisitos, links e especialistas.
+| Route | What it shows |
+|---|---|
+| `/` | Institutional page |
+| `/projects` | List, create and rename projects |
+| `/projects/$projectId/chat` | New conversation with the Digital Twin |
+| `/projects/$projectId/conversations/$id` | History of a conversation |
+| `/projects/$projectId/requirements` | Saved requirements, with search and filters |
+| `/projects/$projectId/requirements/$id` | Details, Critic validation, quality checks, versions and traceability |
+| `/projects/$projectId/experts` | Expert catalog |
+| `/projects/$projectId/experts/$id` | Knowledge file and versions of an expert |
 
-Os serviços retornam diretamente o corpo da resposta (`data`), para que os componentes não dependam dos detalhes internos do Axios.
+Each project has its own requirements, conversations and experts.
 
-## Etapa 02 — Conversação com o Digital Twin
+## Structure
 
-A rota `/project/new` agora apresenta o histórico de mensagens e a resposta da API, em vez de descartar o retorno de `POST /conversations/{id}/messages`.
-
-- Mensagens do Product Owner e do Digital Twin são exibidas em sequência.
-- Enquanto a API processa uma mensagem, a interface informa que a resposta pode levar até um minuto.
-- Propostas retornadas pela API exibem história de usuário, critérios de aceitação e verificações de qualidade disponíveis.
-- A ação `propose` permite solicitar ajustes ou aprovar a proposta. A aprovação só é confirmada na interface após uma resposta bem-sucedida da API.
-- A ação `approved` apresenta os identificadores salvos retornados pelo backend.
-- Eventos `behind_the_scenes` podem ser consultados em uma seção expansível.
-- O usuário pode encerrar uma conversa sem aprovar uma proposta pendente ou iniciar outra conversa após o encerramento.
-- Falhas de envio preservam o texto no campo de composição para permitir nova tentativa.
-
-A validação de sintaxe TSX foi executada. O build, ESLint e testes contra o backend ainda precisam ser executados no ambiente com as dependências instaladas e a API local em execução.
-
-## Rotas integradas
-
-- `/project/new`: inicia uma conversa com o Digital Twin.
-- `/project/$id`: consulta o histórico de uma conversa existente.
-- `/requirements`: lista requisitos persistidos, com pesquisa e filtros locais por status e tópico.
-- `/requirements/$id`: exibe detalhes, critérios de aceitação, verificações de qualidade, versões e relacionamentos retornados pela API.
-
-A área de requisitos utiliza os endpoints de leitura da API. Os dados exibidos dependem dos recursos implementados no backend simulado; quando a API não fornece versões, critérios ou relacionamentos, a interface informa que esses dados não estão disponíveis, sem inventá-los.
-
-### Especialistas
-
-- `/experts`: catálogo de especialistas com pesquisa por tópico, descrição e arquivo de conhecimento.
-- `/experts/$id`: detalhes, conteúdo da base de conhecimento, métricas de consulta e histórico de versões.
-
-As telas usam os endpoints `GET /experts` e `GET /experts/{id}` da API configurada em `VITE_API_BASE_URL`.
+- `src/services/api.ts`: shared Axios client, environment configuration, timeout and error messages.
+- `src/services/api.types.ts`: TypeScript contracts of the API.
+- `src/services/projects.service.ts`: projects.
+- `src/services/chat.service.ts`: open, message, approve and close a conversation.
+- `src/services/history.service.ts`: read-only queries (conversations, events, requirements, links, experts).
+- `src/services/llmKey.ts`: the DeepSeek key typed by the user.
+- `src/components/ValidationPanel`: the Critic's scores and findings.

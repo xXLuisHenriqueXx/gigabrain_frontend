@@ -10,20 +10,21 @@ function About() {
     >
       <div className="w-full max-w-4xl space-y-4 text-center md:text-start">
         <Typography as="h2" className="mx-auto max-w-2xl text-4xl">
-          From idea to{" "}
-          <span className="text-primary">well-defined software</span>.
+          From a loose idea to{" "}
+          <span className="text-primary">well-defined requirements</span>.
         </Typography>
 
         <Typography as="p" className="mx-auto max-w-2xl text-lg">
-          Building software involves much more than writing code. Product
-          decisions, requirements, prioritization, and communication can quickly
-          become a source of unnecessary complexity.
+          Requirements rarely arrive clean. They are scattered across
+          conversations, vague, and sometimes contradict each other. Writing
+          them down well takes time that Product Owners seldom have.
         </Typography>
 
         <Typography as="p" className="mx-auto max-w-2xl">
-          Our assistant helps turn ideas into structured, actionable product
-          requirements, giving development teams more clarity and less
-          repetitive work.
+          GigaBrain asks the questions that are missing and proposes each
+          requirement as a "shall" statement, a user story and Given/When/Then
+          criteria. It works only with what you say and the documents you
+          provide: it never reads source code.
         </Typography>
       </div>
 
