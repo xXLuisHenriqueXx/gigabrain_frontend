@@ -1,8 +1,15 @@
 import { useCallback, useEffect, useState } from "react";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
-import { AlertCircle, ArrowUpRight, FolderKanban, LoaderCircle, Pencil, Plus } from "lucide-react";
+import {
+  AlertCircle,
+  ArrowUpRight,
+  FolderKanban,
+  LoaderCircle,
+  Pencil,
+  Plus,
+} from "lucide-react";
 
-import { AppSidebar } from "@/components/AppSidebar";
+import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -40,7 +47,7 @@ function ProjectsPage() {
     try {
       setProjects(await ProjectsService.list());
     } catch (requestError) {
-      setError(getApiErrorMessage(requestError, "Não foi possível carregar os projetos."));
+      setError(getApiErrorMessage(requestError, "Cannot load projects."));
     } finally {
       setIsLoading(false);
     }
@@ -56,9 +63,12 @@ function ProjectsPage() {
     setError(null);
     try {
       const project = await ProjectsService.create(name, description);
-      await router.navigate({ to: "/projects/$projectId/chat", params: { projectId: project.id } });
+      await router.navigate({
+        to: "/projects/$projectId/chat",
+        params: { projectId: project.id },
+      });
     } catch (requestError) {
-      setError(getApiErrorMessage(requestError, "Não foi possível criar o projeto."));
+      setError(getApiErrorMessage(requestError, "Cannot create project."));
     } finally {
       setIsCreating(false);
     }
@@ -71,123 +81,146 @@ function ProjectsPage() {
       setEditing(null);
       await load();
     } catch (requestError) {
-      setError(getApiErrorMessage(requestError, "Não foi possível renomear o projeto."));
+      setError(getApiErrorMessage(requestError, "Cannot rename project."));
     }
   };
 
   return (
-    <main className="flex h-dvh min-h-140 w-full flex-col overflow-hidden">
-      <AppSidebar />
-      <header className="flex items-start gap-3 border-b px-4 py-4 sm:px-8">
-        <SidebarTrigger className="mt-1 shrink-0" />
-        <div className="min-w-0 flex-1">
-          <Typography as="h1" className="text-xl font-semibold">
-            Projetos
-          </Typography>
-          <Typography as="p" className="mt-1">
-            Cada projeto tem seus próprios requisitos, conversas e especialistas.
-          </Typography>
-        </div>
-      </header>
-
-      <section className="min-h-0 flex-1 overflow-y-auto px-4 py-6 sm:px-8">
-        <div className="mx-auto flex w-full max-w-4xl flex-col gap-5">
-          <Card className="gap-3">
-            <Typography as="h2" className="font-semibold">
-              Novo projeto
+    <DashboardLayout>
+      <div className="flex h-dvh min-h-140 w-full min-w-0 flex-col overflow-hidden">
+        <header className="flex items-start gap-3 border-b px-4 py-4 sm:px-8">
+          <SidebarTrigger className="mt-1 shrink-0" />
+          <div className="min-w-0 flex-1">
+            <Typography as="h1" className="text-xl font-semibold">
+              Projects
             </Typography>
-            <Input
-              aria-label="Nome do projeto"
-              placeholder="Nome do projeto"
-              value={name}
-              maxLength={80}
-              onChange={(event) => setName(event.target.value)}
-              onKeyDown={(event) => event.key === "Enter" && void create()}
-            />
-            <Textarea
-              aria-label="Descrição do projeto"
-              placeholder="Do que se trata o projeto? (opcional)"
-              value={description}
-              onChange={(event) => setDescription(event.target.value)}
-            />
-            <Button className="w-fit" disabled={!name.trim() || isCreating} onClick={() => void create()}>
-              {isCreating ? <LoaderCircle className="animate-spin" /> : <Plus />} Criar projeto
-            </Button>
-          </Card>
+            <Typography as="p" className="mt-1">
+              Each project have its own requirements, chats and experts.
+            </Typography>
+          </div>
+        </header>
 
-          {error && (
-            <div role="alert" className="flex items-start gap-2 text-sm text-destructive">
-              <AlertCircle className="mt-0.5 size-4 shrink-0" /> {error}
-            </div>
-          )}
+        <section className="min-h-0 flex-1 overflow-y-auto px-4 py-6 sm:px-8">
+          <div className="mx-auto flex w-full max-w-4xl flex-col gap-5">
+            <Card className="gap-3">
+              <Typography as="h2" className="font-semibold">
+                New Project
+              </Typography>
+              <Input
+                aria-label="Project name"
+                placeholder="Project name"
+                value={name}
+                maxLength={80}
+                onChange={(event) => setName(event.target.value)}
+                onKeyDown={(event) => event.key === "Enter" && void create()}
+              />
+              <Textarea
+                aria-label="Project description"
+                placeholder="What is your project about? (optional)"
+                value={description}
+                onChange={(event) => setDescription(event.target.value)}
+              />
+              <Button
+                className="w-fit"
+                disabled={!name.trim() || isCreating}
+                onClick={() => void create()}
+              >
+                {isCreating ? (
+                  <LoaderCircle className="animate-spin" />
+                ) : (
+                  <Plus />
+                )}{" "}
+                Create Project
+              </Button>
+            </Card>
 
-          {isLoading && (
-            <p role="status" className="flex items-center gap-2 text-sm text-muted-foreground">
-              <LoaderCircle className="size-4 animate-spin" /> Carregando projetos...
-            </p>
-          )}
+            {error && (
+              <div
+                role="alert"
+                className="flex items-start gap-2 text-sm text-destructive"
+              >
+                <AlertCircle className="mt-0.5 size-4 shrink-0" /> {error}
+              </div>
+            )}
 
-          {!isLoading && !error && projects.length === 0 && (
-            <p className="text-sm text-muted-foreground">
-              Você ainda não tem projetos. Crie o primeiro acima para começar a definir requisitos.
-            </p>
-          )}
+            {isLoading && (
+              <p
+                role="status"
+                className="flex items-center gap-2 text-sm text-muted-foreground"
+              >
+                <LoaderCircle className="size-4 animate-spin" /> Loading
+                Projects ...
+              </p>
+            )}
 
-          <ul className="grid gap-3 sm:grid-cols-2">
-            {projects.map((project) => (
-              <li key={project.id}>
-                <Card className="h-full gap-2">
-                  <div className="flex items-start gap-2">
-                    <FolderKanban className="mt-1 size-4 shrink-0" />
-                    {editing === project.id ? (
-                      <Input
-                        aria-label="Novo nome"
-                        className="h-9 rounded-lg px-3 py-1"
-                        value={editName}
-                        autoFocus
-                        onChange={(event) => setEditName(event.target.value)}
-                        onKeyDown={(event) => {
-                          if (event.key === "Enter") void rename(project);
-                          if (event.key === "Escape") setEditing(null);
+            {!isLoading && !error && projects.length === 0 && (
+              <p className="text-sm text-muted-foreground">
+                You don't have any projects yet. Create the first one to get
+                started.
+              </p>
+            )}
+
+            <ul className="grid gap-3 sm:grid-cols-2">
+              {projects.map((project) => (
+                <li key={project.id}>
+                  <Card className="h-full gap-2">
+                    <div className="flex items-start gap-2">
+                      <FolderKanban className="mt-1 size-4 shrink-0" />
+                      {editing === project.id ? (
+                        <Input
+                          aria-label="New name"
+                          className="h-9 rounded-lg px-3 py-1"
+                          value={editName}
+                          autoFocus
+                          onChange={(event) => setEditName(event.target.value)}
+                          onKeyDown={(event) => {
+                            if (event.key === "Enter") void rename(project);
+                            if (event.key === "Escape") setEditing(null);
+                          }}
+                          onBlur={() => setEditing(null)}
+                        />
+                      ) : (
+                        <Typography
+                          as="h3"
+                          className="min-w-0 flex-1 truncate font-semibold"
+                        >
+                          {project.name}
+                        </Typography>
+                      )}
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        aria-label="Renomear projeto"
+                        onClick={() => {
+                          setEditing(project.id);
+                          setEditName(project.name);
                         }}
-                        onBlur={() => setEditing(null)}
-                      />
-                    ) : (
-                      <Typography as="h3" className="min-w-0 flex-1 truncate font-semibold">
-                        {project.name}
-                      </Typography>
+                      >
+                        <Pencil className="size-4" />
+                      </Button>
+                    </div>
+                    {project.description && (
+                      <p className="line-clamp-3 text-sm text-muted-foreground">
+                        {project.description}
+                      </p>
                     )}
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      aria-label="Renomear projeto"
-                      onClick={() => {
-                        setEditing(project.id);
-                        setEditName(project.name);
-                      }}
-                    >
-                      <Pencil className="size-4" />
-                    </Button>
-                  </div>
-                  {project.description && (
-                    <p className="line-clamp-3 text-sm text-muted-foreground">{project.description}</p>
-                  )}
-                  <div className="mt-auto flex items-center justify-between pt-2 text-xs text-muted-foreground">
-                    <span>Criado em {formatDate(project.created_at)}</span>
-                    <Link
-                      to="/projects/$projectId/chat"
-                      params={{ projectId: project.id }}
-                      className="inline-flex items-center gap-1 text-sm text-foreground underline underline-offset-4"
-                    >
-                      Abrir <ArrowUpRight className="size-4" />
-                    </Link>
-                  </div>
-                </Card>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
-    </main>
+                    <div className="mt-auto flex items-center justify-between pt-2 text-xs text-muted-foreground">
+                      <span>Created at {formatDate(project.created_at)}</span>
+                      <Link
+                        to="/projects/$projectId/chat"
+                        params={{ projectId: project.id }}
+                        className="inline-flex items-center gap-1 text-sm text-foreground underline underline-offset-4"
+                      >
+                        Open <ArrowUpRight className="size-4" />
+                      </Link>
+                    </div>
+                  </Card>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      </div>
+    </DashboardLayout>
   );
 }

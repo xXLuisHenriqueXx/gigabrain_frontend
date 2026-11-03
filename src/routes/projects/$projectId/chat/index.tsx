@@ -24,8 +24,8 @@ import type {
   TwinAnswer,
 } from "@/services/api.types";
 import { getWelcomeMessage } from "@/utils/getWelcomeMessage";
-import { AppSidebar } from "@/components/AppSidebar";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { notifyConversationsUpdated } from "@/services/history.service";
 
 export const Route = createFileRoute("/projects/$projectId/chat/")({
@@ -75,7 +75,7 @@ function Chat() {
     try {
       const response = await ChatService.openChat(projectId);
       if (typeof response.id !== "string" || !response.id) {
-        throw new Error("A API não retornou um ID de conversa válido.");
+        throw new Error("The API not returned a valid conversation ID.");
       }
 
       setConversationId(response.id);
@@ -87,7 +87,7 @@ function Chat() {
       setError(
         getApiErrorMessage(
           requestError,
-          "Não foi possível iniciar a conversa. Tente novamente.",
+          "Cannot open conversation. Try again.",
         ),
       );
       openingRef.current = false;
@@ -124,8 +124,8 @@ function Chat() {
     if (answer.action === "approved") {
       setNotice(
         answer.saved?.length
-          ? `Requisitos aprovados e salvos: ${answer.saved.join(", ")}.`
-          : "A aprovação foi confirmada pela API.",
+          ? `Approved and Saved Requirements: ${answer.saved.join(", ")}.`
+          : "The proposal was approved by the API.",
       );
     } else {
       setNotice(null);
@@ -155,7 +155,11 @@ function Chat() {
     setNotice(null);
 
     try {
-      const answer = await ChatService.sendMessage(projectId, conversationId, text);
+      const answer = await ChatService.sendMessage(
+        projectId,
+        conversationId,
+        text,
+      );
       appendAnswer(answer);
       notifyConversationsUpdated();
     } catch (requestError) {
@@ -164,10 +168,7 @@ function Chat() {
       );
       setMessage(text);
       setError(
-        getApiErrorMessage(
-          requestError,
-          "Não foi possível enviar a mensagem. Tente novamente.",
-        ),
+        getApiErrorMessage(requestError, "Cannot send message. Try again."),
       );
     } finally {
       setIsSending(false);
@@ -188,14 +189,14 @@ function Chat() {
       appendAnswer(answer);
       if (answer.action !== "approved") {
         setNotice(
-          "A API respondeu à solicitação, mas não confirmou a aprovação. Confira a resposta antes de continuar.",
+          "The API responded to the request but did not confirm approval. Check the response before proceeding.",
         );
       }
     } catch (requestError) {
       setError(
         getApiErrorMessage(
           requestError,
-          "Não foi possível aprovar a proposta. Nenhuma aprovação será presumida.",
+          "The proposal could not be approved. No approval will be assumed.",
         ),
       );
     } finally {
@@ -213,7 +214,9 @@ function Chat() {
     )
       return;
     if (
-      !window.confirm("Encerrar esta conversa sem aprovar a proposta pendente?")
+      !window.confirm(
+        "End this conversation without approving the pending proposal?",
+      )
     )
       return;
 
@@ -225,12 +228,12 @@ function Chat() {
       await ChatService.close(projectId, conversationId);
       setIsConversationActive(false);
       setHasPendingProposal(false);
-      setNotice("Conversa encerrada. Nenhum requisito pendente foi aprovado.");
+      setNotice("Conversation ended. No pending proposal was approved.");
     } catch (requestError) {
       setError(
         getApiErrorMessage(
           requestError,
-          "Não foi possível encerrar a conversa. Tente novamente.",
+          "Cannot close conversation. Try Again.",
         ),
       );
     } finally {
@@ -241,287 +244,289 @@ function Chat() {
   const isBusy = isOpening || isSending || isApproving || isClosing;
 
   return (
-    <main className="flex h-dvh min-h-140 w-full flex-col">
-      <AppSidebar />
-      <header className="border-b px-4 py-4 sm:px-8">
-        <div className="mx-auto flex w-full max-w-4xl items-start gap-3">
-          <SidebarTrigger className="mt-1 shrink-0" />
-          <div className="mt-1 flex size-10 shrink-0 items-center justify-center rounded-2xl bg-primary/10">
-            <MessageSquare className="size-5" />
-          </div>
-          <div className="min-w-0 flex-1">
-            <Typography as="h1" className="text-xl font-semibold">
-              {getWelcomeMessage()}
-            </Typography>
-            <Typography as="p" className="mt-1">
-              Converse com o Digital Twin para definir e refinar os requisitos
-              do projeto.
-            </Typography>
-            {conversationId && (
-              <p
-                className="mt-2 truncate text-xs text-muted-foreground"
-                title={conversationId}
-              >
-                Conversa: {conversationId}
-              </p>
-            )}
-          </div>
-          {isConversationActive && conversationId && (
-            <Button
-              variant="ghost"
-              className="h-9 rounded-xl px-3 text-muted-foreground"
-              disabled={isBusy}
-              onClick={() => void closeConversation()}
-            >
-              <XCircle />
-              <span className="hidden sm:inline">Encerrar</span>
-            </Button>
-          )}
-        </div>
-      </header>
-
-      <section
-        aria-label="Histórico da conversa"
-        aria-live="polite"
-        className="min-h-0 flex-1 overflow-y-auto px-4 py-6 sm:px-8"
-      >
-        <div className="mx-auto flex w-full max-w-4xl flex-col gap-5">
-          {isOpening && (
-            <div
-              role="status"
-              className="flex items-center gap-3 text-sm text-muted-foreground"
-            >
-              <LoaderCircle className="size-4 animate-spin" />
-              Iniciando conversa com o Digital Twin...
+    <DashboardLayout>
+      <div className="flex h-dvh min-h-140 w-full flex-col">
+        <header className="border-b px-4 py-4 sm:px-8">
+          <div className="mx-auto flex w-full max-w-4xl items-start gap-3">
+            <SidebarTrigger />
+            <div className="mt-1 flex size-10 shrink-0 items-center justify-center rounded-2xl bg-primary/10">
+              <MessageSquare className="size-5" />
             </div>
-          )}
-
-          {!isOpening && messages.length === 0 && !error && (
-            <div className="mx-auto my-auto flex max-w-lg flex-col items-center gap-3 py-16 text-center">
-              <div className="flex size-14 items-center justify-center rounded-2xl border bg-muted/40">
-                <MessageSquare className="size-6 text-muted-foreground" />
-              </div>
-              <Typography as="h2" className="text-lg font-semibold">
-                Por onde começamos?
+            <div className="flex-1 min-w-0">
+              <Typography as="h1" className="text-xl font-semibold">
+                {getWelcomeMessage()}
               </Typography>
               <Typography as="p">
-                Descreva o problema que o sistema deve resolver, quem vai
-                utilizá-lo ou uma necessidade inicial. O Twin fará perguntas
-                para esclarecer os requisitos.
+                Chat with the Digital Twin to define and refine the project
+                requirements.
               </Typography>
-            </div>
-          )}
-
-          {messages.map((item) => (
-            <article
-              key={item.id}
-              className={`flex w-full ${item.author === "po" ? "justify-end" : "justify-start"}`}
-            >
-              <div
-                className={`flex max-w-full flex-col gap-2 sm:max-w-[88%] ${item.author === "po" ? "items-end" : "items-start"}`}
-              >
-                <span className="px-1 text-xs font-medium text-muted-foreground">
-                  {item.author === "po"
-                    ? "Você · Product Owner"
-                    : "GigaBrain · Digital Twin"}
-                </span>
-                <div
-                  className={`whitespace-pre-wrap wrap-break-word rounded-2xl px-4 py-3 text-sm leading-6 ${item.author === "po" ? "rounded-br-md bg-primary text-primary-foreground" : "rounded-bl-md border bg-card"}`}
-                >
-                  {item.text}
-                </div>
-
-                {item.requirements && item.requirements.length > 0 && (
-                  <div className="flex w-full flex-col gap-3 pt-1">
-                    <Typography as="h3" className="font-semibold">
-                      Requisitos propostos ({item.requirements.length})
-                    </Typography>
-                    {item.requirements.map((requirement, index) => (
-                      <RequirementProposal
-                        key={requirement.id ?? `${requirement.title}-${index}`}
-                        requirement={requirement}
-                      />
-                    ))}
-                  </div>
-                )}
-
-                {item.action === "propose" &&
-                hasPendingProposal &&
-                item.requirements?.length ? (
-                  <div className="flex flex-wrap gap-2 pt-1">
-                    <Button
-                      onClick={() => void approveProposal()}
-                      disabled={isBusy}
-                      loading={isApproving}
-                    >
-                      <CheckCircle2 />
-                      Aprovar proposta
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => composerRef.current?.focus()}
-                      disabled={isBusy}
-                    >
-                      Solicitar ajustes
-                    </Button>
-                  </div>
-                ) : null}
-
-                {item.saved && item.saved.length > 0 && (
-                  <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-                    {item.saved.map((id) => (
-                      <span
-                        key={id}
-                        className="rounded-full border px-2.5 py-1"
-                      >
-                        {id}
-                      </span>
-                    ))}
-                  </div>
-                )}
-
-                {item.events && item.events.length > 0 && (
-                  <details className="w-full rounded-xl border px-3 py-2 text-sm">
-                    <summary className="cursor-pointer font-medium text-muted-foreground">
-                      Etapas internas ({item.events.length})
-                    </summary>
-                    <ol className="mt-3 flex flex-col gap-3">
-                      {item.events.map((event, index) => (
-                        <li
-                          key={`${event.id ?? "event"}-${index}`}
-                          className="border-l-2 pl-3"
-                        >
-                          <p className="font-medium">
-                            {event.sender} → {event.recipient}
-                          </p>
-                          <p className="text-muted-foreground">
-                            {event.summary}
-                          </p>
-                        </li>
-                      ))}
-                    </ol>
-                  </details>
-                )}
-              </div>
-            </article>
-          ))}
-
-          {isSending && (
-            <div
-              role="status"
-              className="flex items-center gap-3 text-sm text-muted-foreground"
-            >
-              <LoaderCircle className="size-4 animate-spin" />O Digital Twin
-              está analisando sua mensagem. Isso pode levar até um minuto.
-            </div>
-          )}
-
-          {error && (
-            <div
-              role="alert"
-              className="flex items-start gap-2 rounded-xl border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive"
-            >
-              <CircleAlert className="mt-0.5 size-4 shrink-0" />
-              <div className="min-w-0 flex-1">{error}</div>
-              {!conversationId && (
-                <Button
-                  variant="outline"
-                  className="h-8 rounded-lg"
-                  onClick={() => void openConversation()}
-                  disabled={isOpening}
-                >
-                  <RotateCcw /> Tentar novamente
-                </Button>
+              {conversationId && (
+                <Typography as="small">
+                  Conversation: {conversationId}
+                </Typography>
               )}
             </div>
-          )}
-
-          {notice && (
-            <div
-              role="status"
-              className="flex items-start gap-2 rounded-xl border border-border bg-muted/40 p-3 text-sm"
-            >
-              <CheckCircle2 className="mt-0.5 size-4 shrink-0" />
-              <span>{notice}</span>
-            </div>
-          )}
-
-          {!isConversationActive && conversationId && (
-            <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed p-5 text-center">
-              <Typography as="h3" className="font-semibold">
-                Conversa encerrada
-              </Typography>
-              <Typography as="p">
-                Inicie uma nova conversa para continuar refinando os requisitos.
-              </Typography>
+            {isConversationActive && conversationId && (
               <Button
-                variant="outline"
-                onClick={() => void openConversation()}
+                variant="ghost"
+                className="h-9 rounded-xl px-3 text-muted-foreground"
                 disabled={isBusy}
+                onClick={() => void closeConversation()}
               >
-                <RotateCcw /> Nova conversa
+                <XCircle />
+                <span className="hidden sm:inline">End</span>
               </Button>
-            </div>
-          )}
-          <div ref={bottomRef} />
-        </div>
-      </section>
+            )}
+          </div>
+        </header>
 
-      <footer className="border-t px-4 py-4 sm:px-8">
-        <form
-          className="mx-auto flex w-full max-w-4xl items-end gap-2"
-          onSubmit={(event) => {
-            event.preventDefault();
-            void submit();
-          }}
+        <section
+          aria-label="Histórico da conversa"
+          aria-live="polite"
+          className="min-h-0 flex-1 overflow-y-auto px-4 py-6 sm:px-8"
         >
-          <Textarea
-            ref={composerRef}
-            value={message}
-            onChange={(event) => setMessage(event.target.value)}
-            onKeyDown={(event) => {
-              if (
-                event.key === "Enter" &&
-                !event.shiftKey &&
-                !event.nativeEvent.isComposing
-              ) {
-                event.preventDefault();
-                void submit();
-              }
+          <div className="mx-auto flex w-full max-w-4xl flex-col gap-5">
+            {isOpening && (
+              <div
+                role="status"
+                className="flex items-center gap-3 text-sm text-muted-foreground"
+              >
+                <LoaderCircle className="size-4 animate-spin" />
+                Starting conversation with Digital Twin...
+              </div>
+            )}
+
+            {!isOpening && messages.length === 0 && !error && (
+              <div className="mx-auto my-auto flex max-w-lg flex-col items-center gap-3 py-16 text-center">
+                <div className="flex size-14 items-center justify-center rounded-2xl border bg-muted/40">
+                  <MessageSquare className="size-6 text-muted-foreground" />
+                </div>
+                <Typography as="h2" className="text-lg font-semibold">
+                  Where do we start?
+                </Typography>
+                <Typography as="p">
+                  Describe the problem the system is intended to solve, who will
+                  use it, or an initial need. The Twin will ask questions to
+                  clarify the requirements.
+                </Typography>
+              </div>
+            )}
+
+            {messages.map((item) => (
+              <article
+                key={item.id}
+                className={`flex w-full ${item.author === "po" ? "justify-end" : "justify-start"}`}
+              >
+                <div
+                  className={`flex max-w-full flex-col gap-2 sm:max-w-[88%] ${item.author === "po" ? "items-end" : "items-start"}`}
+                >
+                  <span className="px-1 text-xs font-medium text-muted-foreground">
+                    {item.author === "po"
+                      ? "You · Product Owner"
+                      : "GigaBrain · Digital Twin"}
+                  </span>
+                  <div
+                    className={`whitespace-pre-wrap wrap-break-word rounded-2xl px-4 py-3 text-sm leading-6 ${item.author === "po" ? "rounded-br-md bg-primary text-primary-foreground" : "rounded-bl-md border bg-card"}`}
+                  >
+                    {item.text}
+                  </div>
+
+                  {item.requirements && item.requirements.length > 0 && (
+                    <div className="flex w-full flex-col gap-3 pt-1">
+                      <Typography as="h3" className="font-semibold">
+                        Proposed requirements ({item.requirements.length})
+                      </Typography>
+                      {item.requirements.map((requirement, index) => (
+                        <RequirementProposal
+                          key={
+                            requirement.id ?? `${requirement.title}-${index}`
+                          }
+                          requirement={requirement}
+                        />
+                      ))}
+                    </div>
+                  )}
+
+                  {item.action === "propose" &&
+                  hasPendingProposal &&
+                  item.requirements?.length ? (
+                    <div className="flex flex-wrap gap-2 pt-1">
+                      <Button
+                        onClick={() => void approveProposal()}
+                        disabled={isBusy}
+                        loading={isApproving}
+                      >
+                        <CheckCircle2 />
+                        Approve proposal
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => composerRef.current?.focus()}
+                        disabled={isBusy}
+                      >
+                        Edit proposal
+                      </Button>
+                    </div>
+                  ) : null}
+
+                  {item.saved && item.saved.length > 0 && (
+                    <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+                      {item.saved.map((id) => (
+                        <span
+                          key={id}
+                          className="rounded-full border px-2.5 py-1"
+                        >
+                          {id}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
+                  {item.events && item.events.length > 0 && (
+                    <details className="w-full rounded-xl border px-3 py-2 text-sm">
+                      <summary className="cursor-pointer font-medium text-muted-foreground">
+                        Internal Steps ({item.events.length})
+                      </summary>
+                      <ol className="mt-3 flex flex-col gap-3">
+                        {item.events.map((event, index) => (
+                          <li
+                            key={`${event.id ?? "event"}-${index}`}
+                            className="border-l-2 pl-3"
+                          >
+                            <p className="font-medium">
+                              {event.sender} → {event.recipient}
+                            </p>
+                            <p className="text-muted-foreground">
+                              {event.summary}
+                            </p>
+                          </li>
+                        ))}
+                      </ol>
+                    </details>
+                  )}
+                </div>
+              </article>
+            ))}
+
+            {isSending && (
+              <div
+                role="status"
+                className="flex items-center gap-3 text-sm text-muted-foreground"
+              >
+                <LoaderCircle className="size-4 animate-spin" />
+                The Digital Twin is analyzing your message. This may take up to
+                a minute.
+              </div>
+            )}
+
+            {error && (
+              <div
+                role="alert"
+                className="flex items-start gap-2 rounded-xl border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive"
+              >
+                <CircleAlert className="mt-0.5 size-4 shrink-0" />
+                <div className="min-w-0 flex-1">{error}</div>
+                {!conversationId && (
+                  <Button
+                    variant="outline"
+                    className="h-8 rounded-lg"
+                    onClick={() => void openConversation()}
+                    disabled={isOpening}
+                  >
+                    <RotateCcw /> Try Again
+                  </Button>
+                )}
+              </div>
+            )}
+
+            {notice && (
+              <div
+                role="status"
+                className="flex items-start gap-2 rounded-xl border border-border bg-muted/40 p-3 text-sm"
+              >
+                <CheckCircle2 className="mt-0.5 size-4 shrink-0" />
+                <span>{notice}</span>
+              </div>
+            )}
+
+            {!isConversationActive && conversationId && (
+              <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed p-5 text-center">
+                <Typography as="h3" className="font-semibold">
+                  Conversation ended
+                </Typography>
+                <Typography as="p">
+                  Start a new conversation to continue refining the
+                  requirements.
+                </Typography>
+                <Button
+                  variant="outline"
+                  onClick={() => void openConversation()}
+                  disabled={isBusy}
+                >
+                  <RotateCcw /> New Conversation
+                </Button>
+              </div>
+            )}
+            <div ref={bottomRef} />
+          </div>
+        </section>
+
+        <footer className="border-t px-4 py-4 sm:px-8">
+          <form
+            className="mx-auto flex w-full max-w-4xl items-end gap-2"
+            onSubmit={(event) => {
+              event.preventDefault();
+              void submit();
             }}
-            className="max-h-40 min-h-12 flex-1 resize-y rounded-2xl"
-            disabled={isBusy || !conversationId || !isConversationActive}
-            placeholder={
-              isOpening
-                ? "Iniciando conversa..."
-                : !isConversationActive
-                  ? "Esta conversa foi encerrada"
-                  : "Descreva uma necessidade ou responda à pergunta do Twin..."
-            }
-            aria-label="Mensagem para o Digital Twin"
-          />
-          <Button
-            type="submit"
-            size="icon"
-            className="rounded-2xl"
-            loading={isSending}
-            disabled={
-              isBusy ||
-              !conversationId ||
-              !isConversationActive ||
-              !message.trim()
-            }
-            aria-label="Enviar mensagem"
           >
-            <Send />
-          </Button>
-        </form>
-        <p className="mx-auto mt-2 w-full max-w-4xl text-xs text-muted-foreground">
-          Enter envia · Shift + Enter quebra a linha. A aprovação é necessária
-          para salvar requisitos.
-        </p>
-      </footer>
-    </main>
+            <Textarea
+              ref={composerRef}
+              value={message}
+              onChange={(event) => setMessage(event.target.value)}
+              onKeyDown={(event) => {
+                if (
+                  event.key === "Enter" &&
+                  !event.shiftKey &&
+                  !event.nativeEvent.isComposing
+                ) {
+                  event.preventDefault();
+                  void submit();
+                }
+              }}
+              className="max-h-40 min-h-12 flex-1 resize-y rounded-2xl"
+              disabled={isBusy || !conversationId || !isConversationActive}
+              placeholder={
+                isOpening
+                  ? "Starting conversation..."
+                  : !isConversationActive
+                    ? "This conversation has ended."
+                    : "Enter the interview that you want to turn into requirements."
+              }
+              aria-label="Message to the Digital Twin"
+            />
+            <Button
+              type="submit"
+              size="icon"
+              className="rounded-2xl"
+              loading={isSending}
+              disabled={
+                isBusy ||
+                !conversationId ||
+                !isConversationActive ||
+                !message.trim()
+              }
+              aria-label="Send message"
+            >
+              <Send />
+            </Button>
+          </form>
+          <p className="mx-auto mt-2 w-full max-w-4xl text-xs text-muted-foreground">
+            Enter sends · Shift + Enter creates a line break. Approval is
+            required to save requirements.
+          </p>
+        </footer>
+      </div>
+    </DashboardLayout>
   );
 }
 
@@ -560,11 +565,11 @@ function RequirementProposal({
       {requirement.story && (
         <div className="rounded-xl bg-muted/40 p-3">
           <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            História de usuário
+            User story
           </p>
           <p className="text-sm">
-            Como {requirement.story.role}, quero {requirement.story.goal}, para{" "}
-            {requirement.story.benefit}.
+            As a {requirement.story.role}, i want {requirement.story.goal}, so
+            that {requirement.story.benefit}.
           </p>
         </div>
       )}
@@ -572,7 +577,7 @@ function RequirementProposal({
       {requirement.acceptance_criteria?.length > 0 && (
         <div className="flex flex-col gap-2">
           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            Critérios de aceitação
+            Acceptance criteria
           </p>
           {requirement.acceptance_criteria.map((criterion, index) => (
             <div
@@ -581,13 +586,13 @@ function RequirementProposal({
             >
               <p className="mb-2 font-medium">{criterion.scenario}</p>
               <p>
-                <span className="font-medium">Dado que</span> {criterion.given}
+                <span className="font-medium">Given</span> {criterion.given}
               </p>
               <p>
-                <span className="font-medium">Quando</span> {criterion.when}
+                <span className="font-medium">When</span> {criterion.when}
               </p>
               <p>
-                <span className="font-medium">Então</span> {criterion.then}
+                <span className="font-medium">Then</span> {criterion.then}
               </p>
             </div>
           ))}
@@ -599,23 +604,23 @@ function RequirementProposal({
       {requirement.quality && (
         <details className="rounded-xl border px-3 py-2">
           <summary className="cursor-pointer text-sm font-medium">
-            Verificações de qualidade
+            Quality Verification
           </summary>
           <dl className="mt-3 grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
             <QualityItem
-              label="Formato EARS"
+              label="EARS Pattern"
               valid={requirement.quality.ears}
             />
             <QualityItem
-              label="História completa"
+              label="Complete History"
               valid={requirement.quality.story_complete}
             />
             <QualityItem
-              label="Critérios Gherkin"
+              label="Gherkin Criteria"
               valid={requirement.quality.criteria_gherkin}
             />
             <div className="rounded-lg bg-muted/40 p-2">
-              <dt className="text-muted-foreground">Quantidade de critérios</dt>
+              <dt className="text-muted-foreground">Number of criteria</dt>
               <dd className="font-medium">
                 {requirement.quality.criteria_count}
               </dd>
@@ -623,7 +628,7 @@ function RequirementProposal({
             {requirement.quality.vague_terms?.length > 0 && (
               <div className="rounded-lg bg-destructive/5 p-2 sm:col-span-2">
                 <dt className="text-muted-foreground">
-                  Termos vagos identificados
+                  Vague Terms identified
                 </dt>
                 <dd className="font-medium">
                   {requirement.quality.vague_terms.join(", ")}
@@ -647,7 +652,7 @@ function QualityItem({ label, valid }: { label: string; valid: boolean }) {
       )}
       <span>{label}</span>
       <span className="ml-auto text-xs text-muted-foreground">
-        {valid ? "OK" : "Revisar"}
+        {valid ? "OK" : "Review"}
       </span>
     </div>
   );
