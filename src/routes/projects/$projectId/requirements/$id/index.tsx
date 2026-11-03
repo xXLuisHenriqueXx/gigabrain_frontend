@@ -260,7 +260,7 @@ function RequirementDetailsPage() {
 
                 <Card className="gap-3">
                   <Typography as="h2" className="font-semibold">
-                    Critérios de aceitação
+                    Acceptance criteria
                   </Typography>
                   {criteria.length ? (
                     <ol className="flex flex-col gap-3">
@@ -270,7 +270,7 @@ function RequirementDetailsPage() {
                           className="rounded-xl border p-3"
                         >
                           <p className="font-medium text-sm">
-                            {criterion.scenario || `Critério ${index + 1}`}
+                            {criterion.scenario || `Criterion ${index + 1}`}
                           </p>
                           <dl className="mt-2 grid gap-2 text-sm sm:grid-cols-3">
                             {(

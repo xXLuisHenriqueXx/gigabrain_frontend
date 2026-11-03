@@ -175,7 +175,7 @@ function ExpertsPage() {
                       </div>
                       <div className="min-w-0 flex-1">
                         <Typography as="h2" className="text-base font-semibold">
-                          {expert.topic || "Especialista sem tópico"}
+                          {expert.topic || "Expert without a topic"}
                         </Typography>
                         <p className="mt-1 wrap-break-word text-xs text-muted-foreground">
                           ID: {expert.id}
@@ -186,7 +186,7 @@ function ExpertsPage() {
                       </span>
                     </div>
                     <p className="whitespace-pre-wrap text-sm text-muted-foreground">
-                      {expert.description || "Sem descrição cadastrada."}
+                      {expert.description || "No description provided."}
                     </p>
                     <dl className="grid grid-cols-2 gap-3 rounded-xl bg-muted/40 p-3">
                       <div>
